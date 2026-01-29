@@ -808,7 +808,10 @@ tr:hover td {
     body {
         background: white !important;
         padding: 0 !important;
-        color: black !important;
+        color: #000 !important;
+        /* Force true black */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .app-container {
@@ -827,13 +830,13 @@ tr:hover td {
     #rangeFilter,
     #printBtn,
     #exportBtn,
-    #importBtn {
+    #importBtn,
+    .manual-link {
         display: none !important;
     }
 
     .dashboard-grid {
         display: block !important;
-        /* Stack vertically */
     }
 
     .card {
@@ -848,6 +851,7 @@ tr:hover td {
         border-bottom: 2px solid #000 !important;
         padding-bottom: 4px !important;
         margin-bottom: 1rem !important;
+        color: #000 !important;
     }
 
     /* Chart Printing */
@@ -856,7 +860,8 @@ tr:hover td {
     }
 
     .chart-flex-container {
-        border: 1px solid #ccc !important;
+        border: 1px solid #000 !important;
+        /* Darker border */
         height: 250px !important;
         overflow: visible !important;
         display: flex !important;
@@ -865,6 +870,7 @@ tr:hover td {
     .chart-axis-box {
         box-shadow: none !important;
         background: white !important;
+        border-right: 1px solid #000 !important;
     }
 
     .chart-scroll-box {
@@ -874,7 +880,6 @@ tr:hover td {
 
     .chart-scroll-video-inner {
         width: 100% !important;
-        /* Force fit to page width */
     }
 
     .pulse-chart .chart-flex-container {
@@ -894,41 +899,44 @@ tr:hover td {
         table-layout: fixed !important;
         width: 100% !important;
         border-collapse: collapse !important;
+        border: 2px solid #000 !important;
+        /* Stronger outline */
     }
-
-    /* Column Widths: Date(19%), Med(6%), others share remaining space */
-    th:nth-child(1),
-    td:nth-child(1) {
-        width: 19% !important;
-    }
-
-    td:nth-child(8),
-    th:nth-child(4) {
-        width: 6% !important;
-    }
-
-    /* Med column is 8th td, but 4th th in row 1 */
 
     th,
     td {
         border: 1px solid #000 !important;
-        font-size: 8pt !important;
-        padding: 3px 2px !important;
+        /* Solid black borders */
+        font-size: 9pt !important;
+        padding: 4px 2px !important;
+        color: #000 !important;
         overflow: visible !important;
-        /* Changed from hidden to ensure text shows */
         word-break: break-all;
     }
 
+    /* Detail / Raw data rows */
+    .detail-row td {
+        background-color: #f0f0f0 !important;
+        font-size: 8pt !important;
+        color: #000 !important;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+        width: 18% !important;
+    }
+
+    .cell-med {
+        width: 6% !important;
+    }
+
     .th-morning {
-        background-color: #fff9db !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background-color: #ffeeaa !important;
+        /* Slightly deeper for print */
     }
 
     .th-evening {
-        background-color: #e7f5ff !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background-color: #ddeeff !important;
     }
 
     /* Header */
@@ -939,8 +947,9 @@ tr:hover td {
     }
 
     .app-header h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.8rem !important;
         margin: 0 !important;
+        color: #000 !important;
     }
 
     .app-header p {
