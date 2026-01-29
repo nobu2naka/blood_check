@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>血圧トラッカー - 使い方</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .manual-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .manual-section {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .manual-section:last-child {
+            border-bottom: none;
+        }
+
+        .manual-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color, #4361ee);
+            margin-bottom: 1rem;
+        }
+
+        .manual-section p {
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            color: #475569;
+        }
+
+        .highlight {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color, #4361ee);
+            margin: 1rem 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: var(--primary-color, #4361ee);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        img.demo-img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="manual-container">
+        <a href="index.html" class="back-link">← アプリに戻る</a>
+
+        <header style="margin-bottom: 3rem; text-align: center;">
+            <h1>血圧トラッカー 使い方ガイド</h1>
+            <p style="color: #64748b;">毎日の血圧管理をシンプルに、確実に。</p>
+        </header>
+
+        <section class="manual-section">
+            <h2>📝 1. 日々の記録</h2>
+            <p>毎日の血圧測定結果を「朝」と「晩」に分けて記録できます。</p>
+            <div class="highlight">
+                <strong>ポイント:</strong> 1回目と2回目の数値を入力すると、自動的に平均値が計算されて保存されます。
+            </div>
+            <p>
+                「計測日時」は自動で今日の日付が入りますが、過去の日付を選択して後から記録することも可能です。
+                朝の記録では「服薬」のチェックボックスにチェックを入れることで、飲み忘れ防止の記録としても活用できます。
+            </p>
+        </section>
+
+        <section class="manual-section">
+            <h2>📊 2. グラフで推移を確認</h2>
+            <p>記録したデータは自動的にグラフ化されます。</p>
+            <div class="highlight">
+                <strong>統合グラフ（デフォルト）:</strong> 「朝→晩→朝→晩」と時系列順に一本の線で表示され、日内変動の流れが掴みやすくなっています。<br>
+                <strong>朝晩比較グラフ:</strong> 朝と晩の推移を別々の線で表示し、それぞれの傾向を比較できます。
+            </div>
+            <p>グラフ上部のボタンで表示モードをいつでも切り替えられます。</p>
+        </section>
+
+        <section class="manual-section">
+            <h2>📋 3. 履歴リストの詳細確認</h2>
+            <p>ページ下部のリストには過去の記録が一覧表示されます。</p>
+            <div class="highlight">
+                <strong>詳細表示:</strong> 日付をクリックすると、平均値の下に「1回目」「2回目」の詳細な測定値が表示されます。<br>
+                <strong>編集・修正:</strong> 各行の右側にある「✏️（鉛筆マーク）」ボタンを押すと、その日のデータを修正フォームに読み込みます。
+            </div>
+        </section>
+
+        <section class="manual-section">
+            <h2>💾 4. データの保存とエクスポート</h2>
+            <p>データはブラウザ内に自動保存されます（インターネット接続がなくても利用可能）。</p>
+            <ul>
+                <li><strong>Jsonエクスポート:</strong> データをファイルとして保存し、バックアップを取ることができます。</li>
+                <li><strong>Excelインポート:</strong> 既存のExcel（.xlsx）データを取り込むことができます（「日付」列と「上」「下」「脈」などの列が必要です）。</li>
+            </ul>
+        </section>
+
+        <footer style="text-align: center; color: #94a3b8; font-size: 0.8rem; margin-top: 4rem;">
+            &copy; Blood Pressure Tracker Manual
+        </footer>
+    </div>
+</body>
+
+</html>
