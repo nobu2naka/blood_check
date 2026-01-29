@@ -111,11 +111,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle chart resize for printing
     window.addEventListener('beforeprint', () => {
         [bpChartDataInstance, bpChartAxisInstance, pulseChartDataInstance, pulseChartAxisInstance].forEach(chart => {
-            if (chart) chart.resize();
+            if (chart) {
+                // Adjust for print: Lower rotation and bolder font
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.ticks.maxRotation = 45;
+                    chart.options.scales.x.ticks.minRotation = 45;
+                    chart.options.scales.x.ticks.font = { weight: 'bold', size: 10 };
+                }
+                chart.update('none');
+                chart.resize();
+            }
         });
     });
     window.addEventListener('afterprint', () => {
-        updateChart(); // Restoration
+        [bpChartDataInstance, bpChartAxisInstance, pulseChartDataInstance, pulseChartAxisInstance].forEach(chart => {
+            if (chart) {
+                // Restore for screen
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.ticks.maxRotation = 90;
+                    chart.options.scales.x.ticks.minRotation = 90;
+                    chart.options.scales.x.ticks.font = { weight: 'normal', size: 13 };
+                }
+                updateChart(); // Full restoration
+            }
+        });
     });
 
     // Dynamic data loading when switching periods
@@ -436,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'main-row';
             row.innerHTML = `
                 <td class="date-toggle cell-date" data-target="${detailClass}" data-label="日付" style="cursor: pointer; user-select: none; color: var(--primary-color); font-weight: 500;">
-                    ${date} <span style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.85em;">(${dayOfWeek})</span>
+                    ${date} <span class="${isSunday ? 'sunday-text' : ''}" style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.85em;">(${dayOfWeek})</span>
                 </td>
                 <td class="cell-m-sys" data-label="朝・最高" style="${mSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mSys}</td>
                 <td class="cell-m-dia" data-label="朝・最低" style="${mDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mDia}</td>
@@ -527,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         position: 'bottom',
                         afterFit: (scale) => { scale.height = 70; },
                         ticks: {
-                            autoSkip: false,
+                            autoSkip: true,
                             maxRotation: 90,
                             minRotation: 90,
                             padding: 0
@@ -624,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         position: 'bottom',
                         afterFit: (scale) => { scale.height = 70; },
                         ticks: {
-                            autoSkip: false,
+                            autoSkip: true,
                             maxRotation: 90,
                             minRotation: 90,
                             padding: 0

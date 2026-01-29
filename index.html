@@ -113,13 +113,23 @@
                 <div class="chart-header"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2><span class="icon">📊</span> 推移グラフ (平均値)</h2>
-                    <div class="chart-toggles" style="font-size: 0.9rem;">
-                        <label style="margin-right: 10px;">
-                            <input type="radio" name="chartMode" value="unified" checked> 統合 (時系列)
-                        </label>
-                        <label>
-                            <input type="radio" name="chartMode" value="separate"> 朝晩比較
-                        </label>
+                    <div class="chart-controls" style="display: flex; align-items: center; gap: 15px;">
+                        <select id="rangeFilter" class="btn-text"
+                            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 2px 8px; font-size: 0.85rem; background: #f8fafc;">
+                            <option value="all">全期間</option>
+                            <option value="1" selected>直近1ヶ月</option>
+                            <option value="2">直近2ヶ月</option>
+                            <option value="3">直近3ヶ月</option>
+                            <option value="6">直近6ヶ月</option>
+                        </select>
+                        <div class="chart-toggles" style="font-size: 0.85rem; display: flex; gap: 10px;">
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="chartMode" value="unified" checked> 統合
+                            </label>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="chartMode" value="separate"> 朝晩比較
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -160,14 +170,7 @@
                 <div class="table-header">
                     <h2><span class="icon">📝</span> 測定結果の一覧</h2>
                     <div class="action-buttons">
-                        <select id="rangeFilter" class="btn-text"
-                            style="border: 1px solid var(--border-color); border-radius: 8px; margin-right: 8px; padding: 2px 5px;">
-                            <option value="all">全期間</option>
-                            <option value="1">直近1ヶ月</option>
-                            <option value="2">直近2ヶ月</option>
-                            <option value="3">直近3ヶ月</option>
-                            <option value="6">直近6ヶ月</option>
-                        </select>
+
                         <input type="file" id="importFile" accept=".xlsx, .xls, .json" style="display: none;">
                         <button id="importBtn" class="btn-text">Import (Excel/JSON)</button>
                         <button id="exportBtn" class="btn-text">Export (JSON)</button>

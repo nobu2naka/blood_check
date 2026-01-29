@@ -862,7 +862,7 @@ tr:hover td {
     .chart-flex-container {
         border: 1px solid #000 !important;
         /* Darker border */
-        height: 250px !important;
+        height: 180px !important;
         overflow: visible !important;
         display: flex !important;
     }
@@ -883,7 +883,7 @@ tr:hover td {
     }
 
     .pulse-chart .chart-flex-container {
-        height: 180px !important;
+        height: 130px !important;
     }
 
     /* Table Printing */
@@ -907,9 +907,11 @@ tr:hover td {
     td {
         border: 1px solid #000 !important;
         /* Solid black borders */
-        font-size: 9pt !important;
-        padding: 4px 2px !important;
-        color: #000 !important;
+        font-size: 8.5pt !important;
+        padding: 2px 2px !important;
+        color: #000;
+        font-weight: normal;
+        /* Default normal, allowing inline styles for high values to override */
         overflow: visible !important;
         word-break: break-all;
     }
@@ -932,11 +934,23 @@ tr:hover td {
 
     .th-morning {
         background-color: #ffeeaa !important;
-        /* Slightly deeper for print */
+        color: #000 !important;
     }
 
     .th-evening {
         background-color: #ddeeff !important;
+        color: #000 !important;
+    }
+
+    .th-sub,
+    .table-legend,
+    .table-legend span,
+    .cell-date span:not(.sunday-text) {
+        color: #000 !important;
+    }
+
+    .sunday-text {
+        color: #ef4444 !important;
     }
 
     /* Header */
