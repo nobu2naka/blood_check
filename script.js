@@ -501,12 +501,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="date-toggle cell-date" data-target="${detailClass}" data-label="日付" style="cursor: pointer; user-select: none; color: var(--primary-color); font-weight: 500;">
                     ${date} <span class="${isSunday ? 'sunday-text' : ''}" style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.85em;">(${dayOfWeek})</span>
                 </td>
-                <td class="cell-m-sys" data-label="朝・最高" style="${mSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mSys}</td>
-                <td class="cell-m-dia" data-label="朝・最低" style="${mDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mDia}</td>
-                <td class="cell-m-pul" data-label="朝・脈拍">${mPul}</td>
-                <td class="cell-e-sys" data-label="晩・最高" style="${eSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eSys}</td>
-                <td class="cell-e-dia" data-label="晩・最低" style="${eDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eDia}</td>
-                <td class="cell-e-pul" data-label="晩・脈拍">${ePul}</td>
+                <td class="cell-m-sys" data-label="最高" style="${mSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mSys}</td>
+                <td class="cell-m-dia" data-label="最低" style="${mDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mDia}</td>
+                <td class="cell-m-pul" data-label="脈拍">${mPul}</td>
+                <td class="cell-e-sys" data-label="最高" style="${eSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eSys}</td>
+                <td class="cell-e-dia" data-label="最低" style="${eDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eDia}</td>
+                <td class="cell-e-pul" data-label="脈拍">${ePul}</td>
                 <td class="cell-med" data-label="服薬">${mMed}</td>
                 <td class="col-actions cell-edit" data-label="編集">
                     <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>

@@ -793,17 +793,17 @@ tr:hover td {
             "date date date date med edit"
             "msys mdia mpul esys edia epul";
         gap: 0;
-        padding: 8px;
-        margin-bottom: 8px;
+        padding: 4px 6px;
+        margin-bottom: 5px;
         background: white;
         border: 1px solid var(--border-color);
-        border-radius: 10px;
+        border-radius: 8px;
     }
 
     #bpTable tr.detail-row.visible {
         display: block;
-        margin-top: -8px;
-        margin-bottom: 8px;
+        margin-top: -5px;
+        margin-bottom: 5px;
     }
 
     #bpTable td {
@@ -812,90 +812,83 @@ tr:hover td {
         align-items: center;
         justify-content: center;
         border: none !important;
-        padding: 2px !important;
-        font-size: 0.82rem;
+        padding: 1px !important;
+        font-size: 0.85rem;
+        min-height: 34px;
     }
 
     #bpTable td::before {
         content: attr(data-label);
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         color: var(--text-secondary);
-        margin-bottom: 0px;
-        transform: scale(0.85);
+        margin-bottom: -2px;
+        transform: scale(0.8);
     }
 
     .cell-date {
         grid-area: date;
         align-items: flex-start !important;
         font-weight: bold;
-        border-bottom: 1px solid #f8f9fa !important;
+        border-bottom: 1px solid #f1f5f9 !important;
         padding-left: 4px !important;
+        font-size: 0.8rem !important;
     }
 
     .cell-med {
         grid-area: med;
-        border-bottom: 1px solid #f8f9fa !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 1rem !important;
     }
 
     .cell-edit {
         grid-area: edit;
         align-items: flex-end !important;
-        border-bottom: 1px solid #f8f9fa !important;
+        border-bottom: 1px solid #f1f5f9 !important;
         padding-right: 4px !important;
     }
 
-    /* Morning (☀️) */
+    /* Morning (☀️) - More compact colors */
     .cell-m-sys {
         grid-area: msys;
-        background: #fffdf5;
-        border-left: 3px solid #ff9f43 !important;
-        padding-top: 4px !important;
+        background: #fffdf9;
+        border-top: 2px solid #ff9f43 !important;
     }
 
     .cell-m-dia {
         grid-area: mdia;
-        background: #fffdf5;
-        padding-top: 4px !important;
+        background: #fffdf9;
+        border-top: 2px solid #ff9f43 !important;
     }
 
     .cell-m-pul {
         grid-area: mpul;
-        background: #fffdf5;
-        padding-top: 4px !important;
+        background: #fffdf9;
+        border-top: 2px solid #ff9f43 !important;
     }
 
     /* Evening (🌙) */
     .cell-e-sys {
         grid-area: esys;
-        background: #f5faff;
-        border-left: 3px solid #54a0ff !important;
-        padding-top: 4px !important;
+        background: #f8fbff;
+        border-top: 2px solid #54a0ff !important;
     }
 
     .cell-e-dia {
         grid-area: edia;
-        background: #f5faff;
-        padding-top: 4px !important;
+        background: #f8fbff;
+        border-top: 2px solid #54a0ff !important;
     }
 
     .cell-e-pul {
         grid-area: epul;
-        background: #f5faff;
-        padding-top: 4px !important;
+        background: #f8fbff;
+        border-top: 2px solid #54a0ff !important;
     }
 
     .cell-edit::before,
     .cell-date::before,
     .cell-med::before {
         display: none;
-    }
-
-    #bpTable td[data-label^="朝"]::before {
-        color: #b45309;
-    }
-
-    #bpTable td[data-label^="晩"]::before {
-        color: #1e40af;
     }
 
     .cell-detail {
@@ -905,10 +898,11 @@ tr:hover td {
     }
 
     .detail-content {
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 8px 8px;
         border: 1px solid var(--border-color);
         border-top: none;
-        padding: 8px !important;
+        padding: 6px !important;
+        font-size: 0.75rem;
     }
 }
 
