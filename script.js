@@ -109,25 +109,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Tab Switching (Mobile) ---
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const target = btn.getAttribute('data-tab');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = btn.getAttribute('data-tab');
+            const targetPane = document.getElementById(targetId);
+
+            if (!targetPane) {
+                console.error('Tab target not found:', targetId);
+                return;
+            }
 
             // Update buttons
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            tabButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             // Update panes
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.getElementById(target).classList.add('active');
+            tabPanes.forEach(p => p.classList.remove('active'));
+            targetPane.classList.add('active');
 
-            // Fix Chart.js size if chart tab becomes visible
-            if (target === 'chart-view') {
+            // If chart tab is activated, ensure charts fit their container
+            if (targetId === 'chart-view') {
                 updateChart();
+                // Short delay to allow DOM to settle for Chart.js resize
+                setTimeout(() => {
+                    if (bpChartDataInstance) bpChartDataInstance.resize();
+                    if (pulseChartDataInstance) pulseChartDataInstance.resize();
+                }, 50);
             }
 
-            // Smooth scroll to top when switching tabs
-            window.scrollTo({ top: 0, behavior: 'auto' });
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'instant' });
         });
     });
 

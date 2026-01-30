@@ -581,18 +581,29 @@ tr:hover td {
         flex: 1;
         background: none;
         border: none;
-        padding: 5px;
+        padding: 8px 5px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 4px;
         color: var(--text-secondary);
         transition: var(--transition);
         cursor: pointer;
+        min-height: 60px;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .tab-btn * {
+        pointer-events: none;
+        /* Children don't intercept clicks */
     }
 
     .tab-btn.active {
         color: var(--primary-color);
+        background-color: rgba(67, 97, 238, 0.05);
+        /* Subtle active background */
     }
 
     .tab-icon {
