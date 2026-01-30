@@ -30,6 +30,17 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     padding: 20px;
+    /* Prevent accidental text selection and blue highlighting on mobile */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow text selection only in input fields */
+input,
+textarea {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 h1,

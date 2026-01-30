@@ -102,6 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateChart();
     });
 
+    // Prevent context menu (long press popup) on charts for better mobile feel
+    document.querySelectorAll('canvas').forEach(canvas => {
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+    });
+
     document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
         radio.addEventListener('change', () => {
             updateChart();
