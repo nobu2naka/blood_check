@@ -110,10 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('touchend', () => {
             const chart = Chart.getChart(canvas);
             if (chart) {
-                chart.tooltip.setActiveElements([], { x: 0, y: 0 });
-                chart.update();
+                chart.setActiveElements([]); // Standard Chart.js v3+ way to clear
+                if (chart.tooltip) chart.tooltip.opacity = 0;
+                chart.update('none'); // Update without animation for speed
             }
-        }, { passive: true });
+        });
     });
 
     document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
@@ -581,21 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     enabled: true,
                     intersect: false,
                     position: 'nearest',
-                    // Disable animation for tooltip on mobile to make it feel sharper
-                    animation: { duration: 100 }
                 }
             },
             layout: {
                 padding: 0
-            },
-            // Critical for mobile: touch events
-            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-            onHover: (event, chartElement) => {
-                // When mouse leaves or touch ends (mouseout is triggered by Chart.js on touchend usually)
-                if (event.type === 'mouseout') {
-                    event.chart.tooltip.setActiveElements([], { x: 0, y: 0 });
-                    event.chart.update();
-                }
             }
         };
 
