@@ -562,11 +562,26 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             plugins: {
                 legend: { display: false },
-                title: { display: false } // Managed by HTML headers
+                title: { display: false }, // Managed by HTML headers
+                tooltip: {
+                    enabled: true,
+                    // Mobile specific: don't keep tooltip open
+                    intersect: false,
+                    position: 'nearest',
+                }
+            },
+            // Custom hover handling to clear tooltips on mobile when finger is lifted
+            onHover: (event, chartElement) => {
+                if (event.type === 'mouseout') {
+                    event.chart.tooltip.opacity = 0;
+                    event.chart.update();
+                }
             },
             layout: {
                 padding: 0
-            }
+            },
+            // Explicitly handle events to include touch end
+            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
         };
 
         // --- BP Charts ---
