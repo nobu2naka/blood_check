@@ -107,21 +107,20 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
         // Mobile: Force clear tooltip when touch ends
-        canvas.addEventListener('touchend', () => {
+        const clearTooltip = () => {
             const chart = Chart.getChart(canvas);
-            if (chart && chart.options.plugins.tooltip) {
-                // Force disable and clear
-                chart.options.plugins.tooltip.enabled = false;
-                chart.setActiveElements([]);
-                chart.update('none');
-
-                // Re-enable for the next touch after a short delay
+            if (chart) {
+                // Use a slightly longer delay to win against simulated mouse events
                 setTimeout(() => {
-                    chart.options.plugins.tooltip.enabled = true;
+                    chart.setActiveElements([]);
+                    if (chart.tooltip) chart.tooltip.opacity = 0;
                     chart.update('none');
                 }, 150);
             }
-        });
+        };
+
+        canvas.addEventListener('touchend', clearTooltip);
+        canvas.addEventListener('touchcancel', clearTooltip);
     });
 
     document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (bpChartDataInstance && bpChartDataInstance.resize) bpChartDataInstance.resize();
                 if (pulseChartDataInstance && pulseChartDataInstance.resize) pulseChartDataInstance.resize();
-            }, 150);
+            }, 200);
         }
         window.scrollTo(0, 0);
     };
@@ -575,19 +574,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Chart Logic ---
 
     function initCharts() {
+        const isMobile = window.innerWidth <= 600;
         const commonOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            // Only respond to these events to avoid "sticky" click behavior on mobile
+            events: ['mousemove', 'mouseout', 'touchstart', 'touchmove', 'touchend'],
             interaction: {
-                mode: 'index',
-                intersect: false,
+                mode: isMobile ? 'nearest' : 'index',
+                intersect: isMobile,
+                axis: 'x'
             },
             plugins: {
                 legend: { display: false },
                 title: { display: false },
                 tooltip: {
                     enabled: true,
-                    intersect: false,
+                    intersect: isMobile,
                     position: 'nearest',
                 }
             },
