@@ -105,6 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Prevent context menu (long press popup) on charts for better mobile feel
     document.querySelectorAll('canvas').forEach(canvas => {
         canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Mobile: Force clear tooltip when touch ends
+        canvas.addEventListener('touchend', () => {
+            const chart = Chart.getChart(canvas);
+            if (chart) {
+                chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+                chart.update();
+            }
+        }, { passive: true });
     });
 
     document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
@@ -567,26 +576,27 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             plugins: {
                 legend: { display: false },
-                title: { display: false }, // Managed by HTML headers
+                title: { display: false },
                 tooltip: {
                     enabled: true,
-                    // Mobile specific: don't keep tooltip open
                     intersect: false,
                     position: 'nearest',
-                }
-            },
-            // Custom hover handling to clear tooltips on mobile when finger is lifted
-            onHover: (event, chartElement) => {
-                if (event.type === 'mouseout') {
-                    event.chart.tooltip.opacity = 0;
-                    event.chart.update();
+                    // Disable animation for tooltip on mobile to make it feel sharper
+                    animation: { duration: 100 }
                 }
             },
             layout: {
                 padding: 0
             },
-            // Explicitly handle events to include touch end
+            // Critical for mobile: touch events
             events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
+            onHover: (event, chartElement) => {
+                // When mouse leaves or touch ends (mouseout is triggered by Chart.js on touchend usually)
+                if (event.type === 'mouseout') {
+                    event.chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+                    event.chart.update();
+                }
+            }
         };
 
         // --- BP Charts ---
