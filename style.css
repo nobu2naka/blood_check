@@ -800,6 +800,10 @@ tr:hover td {
         border-radius: 8px;
     }
 
+    #bpTable tr.detail-row {
+        display: none;
+    }
+
     #bpTable tr.detail-row.visible {
         display: inline-grid;
         width: 49%;
