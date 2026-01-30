@@ -109,10 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mobile: Force clear tooltip when touch ends
         canvas.addEventListener('touchend', () => {
             const chart = Chart.getChart(canvas);
-            if (chart) {
-                chart.setActiveElements([]); // Standard Chart.js v3+ way to clear
-                if (chart.tooltip) chart.tooltip.opacity = 0;
-                chart.update('none'); // Update without animation for speed
+            if (chart && chart.options.plugins.tooltip) {
+                // Force disable and clear
+                chart.options.plugins.tooltip.enabled = false;
+                chart.setActiveElements([]);
+                chart.update('none');
+
+                // Re-enable for the next touch after a short delay
+                setTimeout(() => {
+                    chart.options.plugins.tooltip.enabled = true;
+                    chart.update('none');
+                }, 150);
             }
         });
     });
