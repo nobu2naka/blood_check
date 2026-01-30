@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Tab Switching Logic ---
-    function setActiveTab(targetId) {
+    window.setActiveTab = function (targetId) {
         const panes = document.querySelectorAll('.tab-pane');
         const buttons = document.querySelectorAll('.tab-btn');
 
@@ -121,25 +121,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'chart-view') {
-            updateChart();
+            if (typeof updateChart === 'function') updateChart();
             setTimeout(() => {
-                if (bpChartDataInstance) bpChartDataInstance.resize();
-                if (pulseChartDataInstance) pulseChartDataInstance.resize();
-            }, 100);
+                if (bpChartDataInstance && bpChartDataInstance.resize) bpChartDataInstance.resize();
+                if (pulseChartDataInstance && pulseChartDataInstance.resize) pulseChartDataInstance.resize();
+            }, 150);
         }
         window.scrollTo(0, 0);
-    }
+    };
 
     // Attach listener
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.onclick = (e) => {
             const id = btn.getAttribute('data-tab');
-            if (id) setActiveTab(id);
+            if (id) window.setActiveTab(id);
         };
     });
 
     // Force initial state
-    setActiveTab('chart-view');
+    window.setActiveTab('chart-view');
 
     // Handle chart resize for printing
     window.addEventListener('beforeprint', () => {
