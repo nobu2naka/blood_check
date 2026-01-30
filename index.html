@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=4.3">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="assets/icons/icon-512.png">
 
@@ -136,43 +136,45 @@
                         </div>
                     </div>
 
-                    <div class="measurement-group">
-                        <h3>1回目</h3>
-                        <div class="form-row three-cols">
-                            <div class="form-group">
-                                <label>上 (mmHg)</label>
-                                <input type="number" id="sys1" placeholder="120" min="50" max="300" required>
+                    <div class="measurements-grid">
+                        <div class="measurement-group">
+                            <h3>1回目</h3>
+                            <div class="form-row three-cols">
+                                <div class="form-group">
+                                    <label>上 (mmHg)</label>
+                                    <input type="number" id="sys1" placeholder="120" min="50" max="300" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>下 (mmHg)</label>
+                                    <input type="number" id="dia1" placeholder="80" min="30" max="200" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>脈拍 (bpm)</label>
+                                    <input type="number" id="pul1" placeholder="70" min="30" max="250" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>下 (mmHg)</label>
-                                <input type="number" id="dia1" placeholder="80" min="30" max="200" required>
-                            </div>
-                            <div class="form-group">
-                                <label>脈拍 (bpm)</label>
-                                <input type="number" id="pul1" placeholder="70" min="30" max="250" required>
+                        </div>
+
+                        <div class="measurement-group">
+                            <h3>2回目</h3>
+                            <div class="form-row three-cols">
+                                <div class="form-group">
+                                    <label>上 (mmHg)</label>
+                                    <input type="number" id="sys2" placeholder="120" min="50" max="300" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>下 (mmHg)</label>
+                                    <input type="number" id="dia2" placeholder="80" min="30" max="200" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>脈拍 (bpm)</label>
+                                    <input type="number" id="pul2" placeholder="70" min="30" max="250" required>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="measurement-group">
-                        <h3>2回目</h3>
-                        <div class="form-row three-cols">
-                            <div class="form-group">
-                                <label>上 (mmHg)</label>
-                                <input type="number" id="sys2" placeholder="120" min="50" max="300" required>
-                            </div>
-                            <div class="form-group">
-                                <label>下 (mmHg)</label>
-                                <input type="number" id="dia2" placeholder="80" min="30" max="200" required>
-                            </div>
-                            <div class="form-group">
-                                <label>脈拍 (bpm)</label>
-                                <input type="number" id="pul2" placeholder="70" min="30" max="250" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 16px;">
+                    <div id="medication-group" class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <input type="checkbox" id="medication" style="width: auto; cursor: pointer;">
                             <span>💊 服薬済み</span>
@@ -226,7 +228,7 @@
             </section>
         </main>
     </div>
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=4.3"></script>
 </body>
 
 </html>
