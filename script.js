@@ -565,17 +565,51 @@ document.addEventListener('DOMContentLoaded', () => {
             // Only respond to these events to avoid "sticky" click behavior on mobile
             events: ['mousemove', 'mouseout', 'touchstart', 'touchmove', 'touchend'],
             interaction: {
-                mode: isMobile ? 'nearest' : 'index',
-                intersect: isMobile,
+                mode: 'index',
+                intersect: false,
                 axis: 'x'
             },
             plugins: {
                 legend: { display: false },
                 title: { display: false },
                 tooltip: {
-                    enabled: !isMobile, // Disable tooltip on mobile as it's hidden under finger
-                    intersect: isMobile,
-                    position: 'nearest',
+                    enabled: true,
+                    // Use external element for high visibility (especially on mobile)
+                    external: function (context) {
+                        const callout = document.getElementById('chart-callout');
+                        if (!callout) return;
+
+                        const tooltipModel = context.tooltip;
+                        if (tooltipModel.opacity === 0) {
+                            callout.classList.remove('active');
+                            callout.innerHTML = `<span class="callout-hint">${isMobile ? 'グラフをタッチで詳細表示' : 'ポイントにマウスを重ねて表示'}</span>`;
+                            return;
+                        }
+
+                        callout.classList.add('active');
+                        if (tooltipModel.body) {
+                            const title = (tooltipModel.title && tooltipModel.title[0]) || '';
+                            const bodyLines = tooltipModel.body.map(b => b.lines[0]);
+
+                            let html = `<div class="callout-data">`;
+                            html += `<span>${title}</span>`;
+                            // Filter and format the values
+                            bodyLines.forEach(line => {
+                                if (line.includes(':')) {
+                                    const parts = line.split(':');
+                                    const label = parts[0].trim();
+                                    const val = parts[1].trim();
+                                    // Make it more compact for the callout
+                                    html += `<span>${label} ${val}</span>`;
+                                } else {
+                                    html += `<span>${line}</span>`;
+                                }
+                            });
+                            html += `</div>`;
+                            callout.innerHTML = html;
+                        }
+                    },
+                    enabled: true,
                 }
             },
             layout: {
