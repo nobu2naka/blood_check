@@ -29,88 +29,15 @@
     <div class="app-container">
         <header class="app-header" style="position: relative;">
             <h1>血圧トラッカー</h1>
-            <p>健康管理アプリ version 3 (Mobile Optimized)</p>
+            <p>健康管理アプリ version 2</p>
             <a href="manual.html" class="manual-link"
                 style="position: absolute; right: 0; top: 20px; color: #4361ee; text-decoration: none; border: 1px solid #4361ee; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; background: white;">使い方
                 📖</a>
         </header>
 
-        <!-- Tab Navigation (Mobile First) -->
-        <nav class="tab-nav">
-            <button class="tab-btn active" data-tab="chart-view">
-                <span class="tab-icon">📊</span>
-                <span class="tab-label">グラフ</span>
-            </button>
-            <button class="tab-btn" data-tab="input-view">
-                <span class="tab-icon">✏️</span>
-                <span class="tab-label">記録</span>
-            </button>
-            <button class="tab-btn" data-tab="history-view">
-                <span class="tab-icon">📝</span>
-                <span class="tab-label">履歴</span>
-            </button>
-        </nav>
-
-        <main class="dashboard-grid tab-content">
-            <!-- Chart Section (Default View) -->
-            <section id="chart-view" class="card chart-section tab-pane active">
-                <div class="chart-header"
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2><span class="icon">📊</span> 推移グラフ (平均値)</h2>
-                    <div class="chart-controls" style="display: flex; align-items: center; gap: 15px;">
-                        <select id="rangeFilter" class="btn-text"
-                            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 2px 8px; font-size: 0.85rem; background: #f8fafc;">
-                            <option value="all">全期間</option>
-                            <option value="1" selected>直近1ヶ月</option>
-                            <option value="2">直近2ヶ月</option>
-                            <option value="3">直近3ヶ月</option>
-                            <option value="6">直近6ヶ月</option>
-                        </select>
-                        <div class="chart-toggles" style="font-size: 0.85rem; display: flex; gap: 10px;">
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="chartMode" value="unified" checked> 統合
-                            </label>
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="chartMode" value="separate"> 朝晩比較
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chart-wrapper">
-                    <h3>血圧 (Blood Pressure)</h3>
-                    <!-- Flex Container -->
-                    <div class="chart-flex-container">
-                        <!-- Fixed Axis -->
-                        <div class="chart-axis-box">
-                            <canvas id="bpChartAxis"></canvas>
-                        </div>
-                        <!-- Scrollable Data -->
-                        <div class="chart-scroll-box">
-                            <div class="chart-scroll-video-inner">
-                                <canvas id="bpChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chart-wrapper pulse-chart">
-                    <h3>脈拍 (Pulse)</h3>
-                    <div class="chart-flex-container">
-                        <div class="chart-axis-box">
-                            <canvas id="pulseChartAxis"></canvas>
-                        </div>
-                        <div class="chart-scroll-box">
-                            <div class="chart-scroll-video-inner">
-                                <canvas id="pulseChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+        <main class="dashboard-grid">
             <!-- Data Entry Section -->
-            <section id="input-view" class="card input-section tab-pane">
+            <section class="card input-section">
                 <h2><span class="icon">✏️</span> 記録する</h2>
                 <form id="bpForm">
                     <div class="form-row">
@@ -181,11 +108,69 @@
                 </form>
             </section>
 
+            <!-- Chart Section -->
+            <section class="card chart-section">
+                <div class="chart-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2><span class="icon">📊</span> 推移グラフ (平均値)</h2>
+                    <div class="chart-controls" style="display: flex; align-items: center; gap: 15px;">
+                        <select id="rangeFilter" class="btn-text"
+                            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 2px 8px; font-size: 0.85rem; background: #f8fafc;">
+                            <option value="all">全期間</option>
+                            <option value="1" selected>直近1ヶ月</option>
+                            <option value="2">直近2ヶ月</option>
+                            <option value="3">直近3ヶ月</option>
+                            <option value="6">直近6ヶ月</option>
+                        </select>
+                        <div class="chart-toggles" style="font-size: 0.85rem; display: flex; gap: 10px;">
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="chartMode" value="unified" checked> 統合
+                            </label>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="chartMode" value="separate"> 朝晩比較
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <h3>血圧 (Blood Pressure)</h3>
+                    <!-- Flex Container -->
+                    <div class="chart-flex-container">
+                        <!-- Fixed Axis -->
+                        <div class="chart-axis-box">
+                            <canvas id="bpChartAxis"></canvas>
+                        </div>
+                        <!-- Scrollable Data -->
+                        <div class="chart-scroll-box">
+                            <div class="chart-scroll-video-inner">
+                                <canvas id="bpChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper pulse-chart">
+                    <h3>脈拍 (Pulse)</h3>
+                    <div class="chart-flex-container">
+                        <div class="chart-axis-box">
+                            <canvas id="pulseChartAxis"></canvas>
+                        </div>
+                        <div class="chart-scroll-box">
+                            <div class="chart-scroll-video-inner">
+                                <canvas id="pulseChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Table Section -->
-            <section id="history-view" class="card table-section tab-pane">
+            <section class="card table-section">
                 <div class="table-header">
                     <h2><span class="icon">📝</span> 測定結果の一覧</h2>
                     <div class="action-buttons">
+
                         <input type="file" id="importFile" accept=".xlsx, .xls, .json" style="display: none;">
                         <button id="importBtn" class="btn-text">Import (Excel/JSON)</button>
                         <button id="exportBtn" class="btn-text">Export (JSON)</button>

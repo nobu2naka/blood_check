@@ -1,0 +1,16 @@
+{
+  "name": "血圧トラッカー",
+  "short_name": "血圧記録",
+  "description": "毎日の血圧と脈拍を記録・可視化するアプリ",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4361ee",
+  "icons": [
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
