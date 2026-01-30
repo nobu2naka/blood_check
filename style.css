@@ -801,28 +801,33 @@ tr:hover td {
     }
 
     #bpTable tr.detail-row.visible {
-        display: block;
-        margin-top: -5px;
+        display: inline-grid;
+        width: 49%;
+        margin-top: 2px;
         margin-bottom: 5px;
+        vertical-align: top;
+        font-size: 0.75rem;
+        border-color: #e2e8f0;
+        background-color: #f8fafc;
     }
 
-    #bpTable td {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: none !important;
-        padding: 1px !important;
-        font-size: 0.85rem;
-        min-height: 34px;
+    /* Adjust detail cell font sizes more aggressively for 50% width */
+    #bpTable tr.detail-row td {
+        min-height: 28px;
+        font-size: 0.75rem;
     }
 
-    #bpTable td::before {
-        content: attr(data-label);
-        font-size: 0.55rem;
-        color: var(--text-secondary);
-        margin-bottom: -2px;
-        transform: scale(0.8);
+    #bpTable tr.detail-row td::before {
+        font-size: 0.5rem;
+    }
+
+    #bpTable tr.detail-row .cell-date {
+        color: #64748b !important;
+        font-size: 0.75rem !important;
+    }
+
+    #bpTable tr.detail-row:nth-of-type(odd) {
+        margin-right: 2%;
     }
 
     .cell-date {

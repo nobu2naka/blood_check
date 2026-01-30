@@ -521,36 +521,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Detail Row 1 (1st Measurement)
             const detailRow1 = document.createElement('tr');
-            detailRow1.className = `detail-row ${detailClass}`;
-            // Smaller font, lighter color, narrower height
-            const detailStyle = 'font-size: 0.85rem; color: #64748b; background-color: #f8fafc; height: 1.8rem;';
+            detailRow1.className = `detail-row main-row ${detailClass}`;
 
             detailRow1.innerHTML = `
-                <td style="${detailStyle} padding-left: 2rem;">1回目</td>
-                <td style="${detailStyle}">${safeVal(rawM.m1.sys)}</td>
-                <td style="${detailStyle}">${safeVal(rawM.m1.dia)}</td>
-                <td style="${detailStyle}">${safeVal(rawM.m1.pul)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m1.sys)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m1.dia)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m1.pul)}</td>
-                <td style="${detailStyle}"></td>
-                <td style="${detailStyle}"></td>
+                <td class="cell-date">1回目</td>
+                <td class="cell-m-sys" data-label="最高">${safeVal(rawM.m1.sys)}</td>
+                <td class="cell-m-dia" data-label="最低">${safeVal(rawM.m1.dia)}</td>
+                <td class="cell-m-pul" data-label="脈拍">${safeVal(rawM.m1.pul)}</td>
+                <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m1.sys)}</td>
+                <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m1.dia)}</td>
+                <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m1.pul)}</td>
+                <td class="cell-med"></td>
+                <td class="cell-edit"></td>
             `;
             tableBody.appendChild(detailRow1);
 
             // Detail Row 2 (2nd Measurement)
             const detailRow2 = document.createElement('tr');
-            detailRow2.className = `detail-row ${detailClass}`;
+            detailRow2.className = `detail-row main-row ${detailClass}`;
             detailRow2.innerHTML = `
-                <td style="${detailStyle} padding-left: 2rem;">2回目</td>
-                <td style="${detailStyle}">${safeVal(rawM.m2.sys)}</td>
-                <td style="${detailStyle}">${safeVal(rawM.m2.dia)}</td>
-                <td style="${detailStyle}">${safeVal(rawM.m2.pul)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m2.sys)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m2.dia)}</td>
-                <td style="${detailStyle}">${safeVal(rawE.m2.pul)}</td>
-                <td style="${detailStyle}"></td>
-                <td style="${detailStyle}"></td>
+                <td class="cell-date">2回目</td>
+                <td class="cell-m-sys" data-label="最高">${safeVal(rawM.m2.sys)}</td>
+                <td class="cell-m-dia" data-label="最低">${safeVal(rawM.m2.dia)}</td>
+                <td class="cell-m-pul" data-label="脈拍">${safeVal(rawM.m2.pul)}</td>
+                <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m2.sys)}</td>
+                <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m2.dia)}</td>
+                <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m2.pul)}</td>
+                <td class="cell-med"></td>
+                <td class="cell-edit"></td>
             `;
             tableBody.appendChild(detailRow2);
         });
