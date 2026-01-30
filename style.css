@@ -581,40 +581,49 @@ tr:hover td {
 
     .tab-btn {
         flex: 1;
-        background: none;
+        background: transparent;
         border: none;
-        padding: 8px 5px;
+        padding: 5px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 4px;
-        color: var(--text-secondary);
-        transition: var(--transition);
+        gap: 2px;
+        color: #8d99ae !important;
+        /* Secondary text color */
+        transition: none;
         cursor: pointer;
         min-height: 60px;
         -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
+        position: relative;
     }
 
-    .tab-btn * {
-        pointer-events: none;
-        /* Children don't intercept clicks */
-    }
-
+    /* Active State - Much more distinct */
     .tab-btn.active {
-        color: var(--primary-color);
-        background-color: rgba(67, 97, 238, 0.05);
-        /* Subtle active background */
+        color: #4361ee !important;
+        /* Force primary blue */
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 20%;
+        right: 20%;
+        height: 3px;
+        background: #4361ee;
+        border-radius: 0 0 4px 4px;
     }
 
     .tab-icon {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+        display: block;
     }
 
     .tab-label {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.7rem;
+        font-weight: 700;
+        display: block;
     }
 
     .app-header {

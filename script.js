@@ -108,52 +108,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Tab Switching Logic (Robust Version) ---
+    // --- Tab Switching Logic ---
     function setActiveTab(targetId) {
-        console.log('Switching to tab:', targetId);
         const panes = document.querySelectorAll('.tab-pane');
         const buttons = document.querySelectorAll('.tab-btn');
 
-        // Hide all panes and deactivate all buttons
-        panes.forEach(p => p.classList.remove('active'));
-        buttons.forEach(b => b.classList.remove('active'));
+        panes.forEach(p => {
+            p.classList.toggle('active', p.id === targetId);
+        });
+        buttons.forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-tab') === targetId);
+        });
 
-        // Show target pane
-        const targetPane = document.getElementById(targetId);
-        if (targetPane) {
-            targetPane.classList.add('active');
-        }
-
-        // Activate target button
-        const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetId}"]`);
-        if (targetBtn) {
-            targetBtn.classList.add('active');
-        }
-
-        // Special handling for chart: ensure resize
         if (targetId === 'chart-view') {
-            if (typeof updateChart === 'function') updateChart();
+            updateChart();
             setTimeout(() => {
                 if (bpChartDataInstance) bpChartDataInstance.resize();
                 if (pulseChartDataInstance) pulseChartDataInstance.resize();
             }, 100);
         }
-
-        // Scroll to top (compatible way)
         window.scrollTo(0, 0);
     }
 
-    // Use event delegation on document to catch all tab button clicks
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.tab-btn');
-        if (btn) {
-            e.preventDefault();
-            const targetId = btn.getAttribute('data-tab');
-            if (targetId) {
-                setActiveTab(targetId);
-            }
-        }
-    }, true); // Use capture phase for maximum priority
+    // Attach listener
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            const id = btn.getAttribute('data-tab');
+            if (id) setActiveTab(id);
+        };
+    });
+
+    // Force initial state
+    setActiveTab('chart-view');
 
     // Handle chart resize for printing
     window.addEventListener('beforeprint', () => {
