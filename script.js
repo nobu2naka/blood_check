@@ -573,44 +573,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 legend: { display: false },
                 title: { display: false },
                 tooltip: {
-                    enabled: true,
-                    // Use external element for high visibility (especially on mobile)
-                    external: function (context) {
-                        const callout = document.getElementById('chart-callout');
-                        if (!callout) return;
-
-                        const tooltipModel = context.tooltip;
-                        if (tooltipModel.opacity === 0) {
-                            callout.classList.remove('active');
-                            callout.innerHTML = `<span class="callout-hint">${isMobile ? 'グラフをタッチで詳細表示' : 'ポイントにマウスを重ねて表示'}</span>`;
-                            return;
-                        }
-
-                        callout.classList.add('active');
-                        if (tooltipModel.body) {
-                            const title = (tooltipModel.title && tooltipModel.title[0]) || '';
-                            const bodyLines = tooltipModel.body.map(b => b.lines[0]);
-
-                            let html = `<div class="callout-data">`;
-                            html += `<span>${title}</span>`;
-                            // Filter and format the values
-                            bodyLines.forEach(line => {
-                                if (line.includes(':')) {
-                                    const parts = line.split(':');
-                                    const label = parts[0].trim();
-                                    const val = parts[1].trim();
-                                    // Make it more compact for the callout
-                                    html += `<span>${label} ${val}</span>`;
-                                } else {
-                                    html += `<span>${line}</span>`;
-                                }
-                            });
-                            html += `</div>`;
-                            callout.innerHTML = html;
-                        }
-                    },
-                    enabled: true,
+                    enabled: false
                 }
+            },
+            onHover: (event, activeElements) => {
+                const callout = document.getElementById('chart-callout');
+                if (!callout) return;
+
+                if (!activeElements || activeElements.length === 0) {
+                    callout.classList.remove('active');
+                    callout.innerHTML = `<span class="callout-hint">${isMobile ? 'グラフをタッチで詳細表示' : 'ポイントにマウスを重ねて表示'}</span>`;
+                    return;
+                }
+
+                callout.classList.add('active');
+                const chart = activeElements[0].element.$context.chart;
+                const index = activeElements[0].index;
+                const labels = chart.data.labels;
+                const datasets = chart.data.datasets;
+
+                let html = `<div class="callout-data">`;
+                html += `<span>${labels[index]}</span>`;
+
+                datasets.forEach(ts => {
+                    const val = ts.data[index];
+                    if (val !== null && val !== undefined) {
+                        html += `<span>${ts.label} ${val}</span>`;
+                    }
+                });
+                html += `</div>`;
+                callout.innerHTML = html;
             },
             layout: {
                 padding: 0
