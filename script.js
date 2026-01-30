@@ -105,22 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Prevent context menu (long press popup) on charts for better mobile feel
     document.querySelectorAll('canvas').forEach(canvas => {
         canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Mobile: Force clear tooltip when touch ends
-        const clearTooltip = () => {
-            const chart = Chart.getChart(canvas);
-            if (chart) {
-                // Use a slightly longer delay to win against simulated mouse events
-                setTimeout(() => {
-                    chart.setActiveElements([]);
-                    if (chart.tooltip) chart.tooltip.opacity = 0;
-                    chart.update('none');
-                }, 150);
-            }
-        };
-
-        canvas.addEventListener('touchend', clearTooltip);
-        canvas.addEventListener('touchcancel', clearTooltip);
     });
 
     document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
@@ -589,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 legend: { display: false },
                 title: { display: false },
                 tooltip: {
-                    enabled: true,
+                    enabled: !isMobile, // Disable tooltip on mobile as it's hidden under finger
                     intersect: isMobile,
                     position: 'nearest',
                 }
