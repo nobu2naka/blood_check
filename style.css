@@ -572,9 +572,11 @@ tr:hover td {
         background: white;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-        z-index: 1000;
+        z-index: 99999 !important;
+        /* Extremely high z-index to be on top */
         padding-bottom: env(safe-area-inset-bottom, 10px);
         padding-top: 8px;
+        pointer-events: auto !important;
     }
 
     .tab-btn {

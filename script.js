@@ -108,42 +108,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Tab Switching (Mobile) ---
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
+    // --- Tab Switching Logic (Robust Version) ---
+    function setActiveTab(targetId) {
+        console.log('Switching to tab:', targetId);
+        const panes = document.querySelectorAll('.tab-pane');
+        const buttons = document.querySelectorAll('.tab-btn');
 
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const targetId = btn.getAttribute('data-tab');
-            const targetPane = document.getElementById(targetId);
+        // Hide all panes and deactivate all buttons
+        panes.forEach(p => p.classList.remove('active'));
+        buttons.forEach(b => b.classList.remove('active'));
 
-            if (!targetPane) {
-                console.error('Tab target not found:', targetId);
-                return;
-            }
-
-            // Update buttons
-            tabButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Update panes
-            tabPanes.forEach(p => p.classList.remove('active'));
+        // Show target pane
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
             targetPane.classList.add('active');
+        }
 
-            // If chart tab is activated, ensure charts fit their container
-            if (targetId === 'chart-view') {
-                updateChart();
-                // Short delay to allow DOM to settle for Chart.js resize
-                setTimeout(() => {
-                    if (bpChartDataInstance) bpChartDataInstance.resize();
-                    if (pulseChartDataInstance) pulseChartDataInstance.resize();
-                }, 50);
+        // Activate target button
+        const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetId}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
+
+        // Special handling for chart: ensure resize
+        if (targetId === 'chart-view') {
+            if (typeof updateChart === 'function') updateChart();
+            setTimeout(() => {
+                if (bpChartDataInstance) bpChartDataInstance.resize();
+                if (pulseChartDataInstance) pulseChartDataInstance.resize();
+            }, 100);
+        }
+
+        // Scroll to top (compatible way)
+        window.scrollTo(0, 0);
+    }
+
+    // Use event delegation on document to catch all tab button clicks
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab-btn');
+        if (btn) {
+            e.preventDefault();
+            const targetId = btn.getAttribute('data-tab');
+            if (targetId) {
+                setActiveTab(targetId);
             }
-
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'instant' });
-        });
-    });
+        }
+    }, true); // Use capture phase for maximum priority
 
     // Handle chart resize for printing
     window.addEventListener('beforeprint', () => {
