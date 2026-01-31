@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Tab Switching Logic ---
-    window.setActiveTab = function (targetId) {
+    window.setActiveTab = function (targetId, pushState = true) {
         const panes = document.querySelectorAll('.tab-pane');
         const buttons = document.querySelectorAll('.tab-btn');
 
@@ -134,18 +134,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 200);
         }
         window.scrollTo(0, 0);
+
+        if (pushState) {
+            history.pushState({ tab: targetId }, "", `#${targetId}`);
+        }
     };
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.tab) {
+            window.setActiveTab(event.state.tab, false);
+        } else {
+            // Default to chart or based on hash
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                window.setActiveTab(hash, false);
+            } else {
+                window.setActiveTab('chart-view', false);
+            }
+        }
+    });
 
     // Attach listener
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.onclick = (e) => {
-            const id = btn.getAttribute('data-tab');
-            if (id) window.setActiveTab(id);
-        };
+        btn.addEventListener('click', () => {
+            window.setActiveTab(btn.getAttribute('data-tab'));
+        });
     });
 
-    // Force initial state
-    window.setActiveTab('chart-view');
+    // Initial load tab handling
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+        window.setActiveTab(initialHash, false);
+    } else {
+        history.replaceState({ tab: 'chart-view' }, "", "#chart-view");
+    }
 
     // Handle chart resize for printing
     window.addEventListener('beforeprint', () => {
@@ -231,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mobile: Switch to input tab
             const inputTabBtn = document.querySelector('.tab-btn[data-tab="input-view"]');
             if (inputTabBtn && window.getComputedStyle(document.querySelector('.tab-nav')).display !== 'none') {
-                inputTabBtn.click();
+                window.setActiveTab('input-view');
             } else {
                 // PC: Scroll to form
                 document.querySelector('.input-section').scrollIntoView({ behavior: 'smooth' });
@@ -549,13 +572,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m1.sys)}</td>
                 <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m1.dia)}</td>
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m1.pul)}</td>
-                <td class="cell-med">
-                    <button class="btn-icon-edit mobile-edit-hint" data-date="${date}" title="データを編集">✏️</button>
+                
+                <td class="cell-m-stats mobile-only-cell" data-label="朝">
+                    ${safeVal(rawM.m1.sys)}/${safeVal(rawM.m1.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m1.pul)}</span>
                 </td>
+                <td class="cell-e-stats mobile-only-cell" data-label="晩">
+                    ${safeVal(rawE.m1.sys)}/${safeVal(rawE.m1.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m1.pul)}</span>
+                </td>
+
+                <td class="cell-med"></td>
                 <td class="cell-memo"></td>
-                <td class="cell-edit">
-                    <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
-                </td>
+                <td class="cell-edit"></td>
             `;
             tableBody.appendChild(detailRow1);
 
@@ -570,20 +597,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m2.sys)}</td>
                 <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m2.dia)}</td>
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m2.pul)}</td>
-                <td class="cell-med">
-                    <button class="btn-icon-edit mobile-edit-hint" data-date="${date}" title="データを編集">✏️</button>
+
+                <td class="cell-m-stats mobile-only-cell" data-label="朝">
+                    ${safeVal(rawM.m2.sys)}/${safeVal(rawM.m2.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m2.pul)}</span>
                 </td>
+                <td class="cell-e-stats mobile-only-cell" data-label="晩">
+                    ${safeVal(rawE.m2.sys)}/${safeVal(rawE.m2.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m2.pul)}</span>
+                </td>
+
+                <td class="cell-med"></td>
                 <td class="cell-memo"></td>
-                <td class="cell-edit">
-                    <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
-                </td>
+                <td class="cell-edit"></td>
             `;
             tableBody.appendChild(detailRow2);
 
             // Double click to edit for details
             [detailRow1, detailRow2].forEach(dr => {
                 dr.addEventListener('dblclick', () => {
-                    const editBtn = dr.querySelector('.btn-icon-edit');
+                    // We need to find the edit button in the main row instead
+                    const mainRow = dr.previousElementSibling.closest('.main-row') || dr.previousElementSibling.previousElementSibling.closest('.main-row');
+                    const editBtn = mainRow ? mainRow.querySelector('.btn-icon-edit') : null;
                     if (editBtn) editBtn.click();
                 });
                 // Simple double tap for mobile
@@ -592,7 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
                     if (tapLength < 500 && tapLength > 0) {
-                        const editBtn = dr.querySelector('.btn-icon-edit');
+                        const mainRow = dr.previousElementSibling.closest('.main-row') || dr.previousElementSibling.previousElementSibling.closest('.main-row');
+                        const editBtn = mainRow ? mainRow.querySelector('.btn-icon-edit') : null;
                         if (editBtn) editBtn.click();
                         e.preventDefault();
                     }
