@@ -220,7 +220,8 @@ h3 {
 input[type="text"],
 input[type="number"],
 input[type="date"],
-input[type="time"] {
+input[type="time"],
+textarea {
     width: 100%;
     padding: 10px 12px;
     border-radius: var(--radius-md);
@@ -231,7 +232,8 @@ input[type="time"] {
     background-color: #f9fafb;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
     outline: none;
     border-color: var(--primary-color);
     background-color: #fff;
@@ -301,6 +303,14 @@ input:focus {
     border-radius: var(--radius-md);
     margin-bottom: 20px;
     border: 1px solid #e2e8f0;
+}
+
+#memo {
+    min-height: 80px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    padding: 10px;
+    resize: vertical;
 }
 
 @media (max-width: 600px) {
@@ -556,6 +566,20 @@ tr:hover td {
     background-color: #f9fafb;
 }
 
+.mobile-only-cell {
+    display: none !important;
+}
+
+.cell-memo {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
 /* Detail view styles */
 .detail-row {
     background-color: #f8fafc;
@@ -788,37 +812,100 @@ tr:hover td {
 
     #bpTable tr.main-row {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: 24% 28% 28% 20%;
         grid-template-areas:
-            "date date date date med edit"
-            "msys mdia mpul esys edia epul";
+            "date morning evening med";
         gap: 0;
-        padding: 4px 6px;
-        margin-bottom: 5px;
+        padding: 8px 4px;
+        margin-bottom: 4px;
         background: white;
         border: 1px solid var(--border-color);
         border-radius: 8px;
+        align-items: center;
     }
 
-    #bpTable tr.detail-row {
-        display: none;
+    /* Column Assignments for Main Row */
+    .cell-date {
+        grid-area: date;
+    }
+
+    .cell-m-stats {
+        grid-area: morning;
+    }
+
+    .cell-e-stats {
+        grid-area: evening;
+    }
+
+    .cell-med {
+        grid-area: med;
+    }
+
+    /* Visibility Controls */
+    #bpTable tr.main-row .cell-edit,
+    #bpTable tr.main-row .cell-memo,
+    #bpTable tr.main-row .cell-m-sys,
+    #bpTable tr.main-row .cell-m-dia,
+    #bpTable tr.main-row .cell-m-pul,
+    #bpTable tr.main-row .cell-e-sys,
+    #bpTable tr.main-row .cell-e-dia,
+    #bpTable tr.main-row .cell-e-pul {
+        display: none !important;
+    }
+
+    .mobile-only-cell {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: none !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2;
     }
 
     #bpTable tr.detail-row.visible {
-        display: inline-grid;
-        width: 49%;
+        display: block;
+        width: 100%;
         margin-top: 2px;
-        margin-bottom: 5px;
-        vertical-align: top;
-        font-size: 0.75rem;
-        border-color: #e2e8f0;
+        margin-bottom: 2px;
+        font-size: 0.85rem;
         background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
     }
 
-    /* Adjust detail cell font sizes more aggressively for 50% width */
     #bpTable tr.detail-row td {
-        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 11.5%;
+        padding: 6px 1px;
         font-size: 0.75rem;
+        border: none !important;
+        vertical-align: middle;
+    }
+
+    #bpTable tr.detail-row .cell-date {
+        width: 17%;
+        justify-content: flex-start;
+        padding-left: 6px;
+        font-weight: 500;
+    }
+
+    #bpTable tr.detail-row .cell-med {
+        width: 11%;
+    }
+
+    /* Hide individual labels in detail rows to save space */
+    #bpTable tr.detail-row td::before {
+        display: none !important;
+    }
+
+    .mobile-edit-hint {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 1rem;
     }
 
     #bpTable tr.detail-row td::before {
@@ -832,6 +919,36 @@ tr:hover td {
 
     #bpTable tr.detail-row:nth-of-type(odd) {
         margin-right: 2%;
+    }
+
+    .cell-memo {
+        grid-area: memo;
+        display: flex;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+        color: #64748b;
+        background: #f8fafc;
+        border-top: 1px dashed #e2e8f0 !important;
+        min-height: auto !important;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Show full memo icon prefix */
+    .cell-memo::before {
+        content: "📝" !important;
+        font-size: 0.7rem !important;
+        margin-right: 4px;
+        transform: none !important;
+    }
+
+    .cell-memo.empty-memo {
+        display: none !important;
     }
 
     .cell-date {
@@ -912,6 +1029,15 @@ tr:hover td {
         border-top: none;
         padding: 6px !important;
         font-size: 0.75rem;
+    }
+
+    /* Memo row should always be full width */
+    #bpTable tr.memo-row.visible {
+        display: block !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        border: none !important;
+        background-color: transparent !important;
     }
 }
 

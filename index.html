@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=4.6">
+    <link rel="stylesheet" href="style.css?v=5.5.1">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="assets/icons/icon-512.png">
 
@@ -29,7 +29,7 @@
     <div class="app-container">
         <header class="app-header" style="position: relative;">
             <h1>血圧トラッカー</h1>
-            <p>健康管理アプリ version 4</p>
+            <p>健康管理アプリ version 5.5.1</p>
             <a href="manual.html" class="manual-link"
                 style="position: absolute; right: 0; top: 20px; color: #4361ee; text-decoration: none; border: 1px solid #4361ee; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; background: white;">使い方
                 📖</a>
@@ -181,6 +181,11 @@
                         </label>
                     </div>
 
+                    <div class="form-group">
+                        <label for="memo">メモ</label>
+                        <textarea id="memo" rows="2" placeholder="体調や気になることなど"></textarea>
+                    </div>
+
                     <button type="submit" class="btn-primary">保存 (平均を算出)</button>
                     <button type="button" id="clearBtn" class="btn-secondary">リセット</button>
                 </form>
@@ -208,6 +213,7 @@
                                 <th colspan="3" class="th-group th-morning">☀️ 朝 (平均)</th>
                                 <th colspan="3" class="th-group th-evening">🌙 晩 (平均)</th>
                                 <th rowspan="2">服薬</th>
+                                <th rowspan="2">メモ</th>
                                 <th rowspan="2" class="col-actions">編集</th>
                             </tr>
                             <tr>
@@ -226,9 +232,12 @@
                     <div id="noDataMessage" class="no-data">データがまだありません</div>
                 </div>
             </section>
+            <footer style="text-align: right; padding: 10px; font-size: 0.7rem; color: #94a3b8;">
+                App version: 5.5.1
+            </footer>
         </main>
     </div>
-    <script src="script.js?v=4.6"></script>
+    <script src="script.js?v=5.5.1"></script>
 </body>
 
 </html>

@@ -54,12 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
         importBtn: document.getElementById('importBtn'),
         printBtn: document.getElementById('printBtn'),
         rangeFilter: document.getElementById('rangeFilter'),
-        medicationCheck: document.getElementById('medication')
+        medicationCheck: document.getElementById('medication'),
+        memoInput: document.getElementById('memo')
     };
 
 
 
-    const { form, tableBody, noDataMessage, clearBtn, exportBtn, printBtn, rangeFilter, dateInput, importFile, importBtn, medicationCheck } = elements;
+    const { form, tableBody, noDataMessage, clearBtn, exportBtn, printBtn, rangeFilter, dateInput, importFile, importBtn, medicationCheck, memoInput } = elements;
     const periodInputs = document.getElementsByName('period');
 
     // --- Initialization ---
@@ -246,14 +247,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 detailRows.forEach(r => r.classList.add('visible'));
             }
 
-        } else if (e.target.closest('.date-toggle')) {
-            const btn = e.target.closest('.date-toggle');
-            const targetClass = btn.dataset.target;
-            const detailRows = document.querySelectorAll(`.${targetClass}`);
-
-            detailRows.forEach(row => {
-                row.classList.toggle('visible');
-            });
+        } else if (e.target.closest('.main-row')) {
+            const row = e.target.closest('.main-row');
+            const toggleBtn = row.querySelector('.date-toggle');
+            if (toggleBtn) {
+                const targetClass = toggleBtn.dataset.target;
+                const detailRows = document.querySelectorAll(`.${targetClass}`);
+                detailRows.forEach(r => r.classList.toggle('visible'));
+            }
         }
     });
 
@@ -398,6 +399,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         bpData[date][period] = entryData;
 
+        // Save memo at daily level
+        bpData[date].memo = memoInput.value;
+
         // Save to Server
         saveRecord(date, bpData[date]);
 
@@ -427,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (period === 'morning' && entry.medication !== undefined) {
             medicationCheck.checked = entry.medication;
         }
+
+        // Load memo
+        memoInput.value = bpData[date].memo || '';
     }
 
     function deleteEntry(date) {
@@ -497,9 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Main Row
             const row = document.createElement('tr');
             row.className = 'main-row';
+            const hasMemo = bpData[date].memo && bpData[date].memo.trim() !== '';
             row.innerHTML = `
                 <td class="date-toggle cell-date" data-target="${detailClass}" data-label="日付" style="cursor: pointer; user-select: none; color: var(--primary-color); font-weight: 500;">
-                    ${date} <span class="${isSunday ? 'sunday-text' : ''}" style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.85em;">(${dayOfWeek})</span>
+                    ${date.substring(5)} <span class="${isSunday ? 'sunday-text' : ''}" style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.8em;">(${dayOfWeek})</span>
+                    ${hasMemo ? '<span style="font-size:0.75em; margin-left:2px;">🗒️</span>' : ''}
                 </td>
                 <td class="cell-m-sys" data-label="最高" style="${mSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mSys}</td>
                 <td class="cell-m-dia" data-label="最低" style="${mDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mDia}</td>
@@ -507,7 +516,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-sys" data-label="最高" style="${eSys >= 135 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eSys}</td>
                 <td class="cell-e-dia" data-label="最低" style="${eDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eDia}</td>
                 <td class="cell-e-pul" data-label="脈拍">${ePul}</td>
+                
+                <td class="cell-m-stats mobile-only-cell" data-label="朝" style="${mSys >= 135 || mDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">
+                    ${mSys}/${mDia}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${mPul}</span>
+                </td>
+                <td class="cell-e-stats mobile-only-cell" data-label="晩" style="${eSys >= 135 || eDia >= 85 ? 'color:var(--accent-red); font-weight:bold;' : ''}">
+                    ${eSys}/${eDia}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${ePul}</span>
+                </td>
+
                 <td class="cell-med" data-label="服薬">${mMed}</td>
+                <td class="cell-memo ${!bpData[date].memo ? 'empty-memo' : ''}" data-label="メモ">${bpData[date].memo || ''}</td>
                 <td class="col-actions cell-edit" data-label="編集">
                     <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
                 </td>
@@ -521,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Detail Row 1 (1st Measurement)
             const detailRow1 = document.createElement('tr');
-            detailRow1.className = `detail-row main-row ${detailClass}`;
+            detailRow1.className = `detail-row ${detailClass}`;
 
             detailRow1.innerHTML = `
                 <td class="cell-date">1回目</td>
@@ -531,14 +549,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m1.sys)}</td>
                 <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m1.dia)}</td>
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m1.pul)}</td>
-                <td class="cell-med"></td>
-                <td class="cell-edit"></td>
+                <td class="cell-med">
+                    <button class="btn-icon-edit mobile-edit-hint" data-date="${date}" title="データを編集">✏️</button>
+                </td>
+                <td class="cell-memo"></td>
+                <td class="cell-edit">
+                    <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
+                </td>
             `;
             tableBody.appendChild(detailRow1);
 
             // Detail Row 2 (2nd Measurement)
             const detailRow2 = document.createElement('tr');
-            detailRow2.className = `detail-row main-row ${detailClass}`;
+            detailRow2.className = `detail-row ${detailClass}`;
             detailRow2.innerHTML = `
                 <td class="cell-date">2回目</td>
                 <td class="cell-m-sys" data-label="最高">${safeVal(rawM.m2.sys)}</td>
@@ -547,10 +570,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-sys" data-label="最高">${safeVal(rawE.m2.sys)}</td>
                 <td class="cell-e-dia" data-label="最低">${safeVal(rawE.m2.dia)}</td>
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m2.pul)}</td>
-                <td class="cell-med"></td>
-                <td class="cell-edit"></td>
+                <td class="cell-med">
+                    <button class="btn-icon-edit mobile-edit-hint" data-date="${date}" title="データを編集">✏️</button>
+                </td>
+                <td class="cell-memo"></td>
+                <td class="cell-edit">
+                    <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
+                </td>
             `;
             tableBody.appendChild(detailRow2);
+
+            // Double click to edit for details
+            [detailRow1, detailRow2].forEach(dr => {
+                dr.addEventListener('dblclick', () => {
+                    const editBtn = dr.querySelector('.btn-icon-edit');
+                    if (editBtn) editBtn.click();
+                });
+                // Simple double tap for mobile
+                let lastTap = 0;
+                dr.addEventListener('touchend', (e) => {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    if (tapLength < 500 && tapLength > 0) {
+                        const editBtn = dr.querySelector('.btn-icon-edit');
+                        if (editBtn) editBtn.click();
+                        e.preventDefault();
+                    }
+                    lastTap = currentTime;
+                });
+            });
+
+            // Memo Row
+            if (hasMemo) {
+                const memoRow = document.createElement('tr');
+                memoRow.className = `detail-row memo-row ${detailClass}`;
+                memoRow.style.backgroundColor = '#fffbeb';
+                memoRow.innerHTML = `
+                    <td colspan="10" style="padding: 10px 16px; font-size: 0.85rem; color: #92400e; border: 1px solid #fde68a; border-radius: 8px;">
+                        <strong>メモ:</strong> ${bpData[date].memo}
+                    </td>
+                `;
+                tableBody.appendChild(memoRow);
+            }
         });
     }
     // --- Chart Logic ---
