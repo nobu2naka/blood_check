@@ -5,55 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEY = 'bp_tracker_data_v2';
     const OLD_STORAGE_KEY = 'bp_tracker_data';
     let bpData = {};
-    let useLocalStorage = true;
-
-    // --- Firebase Configuration ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyDn0AaYfD8JSB_T1QzImg9KYmFi7MdPssI",
-        authDomain: "blood-check-61d79.firebaseapp.com",
-        projectId: "blood-check-61d79",
-        storageBucket: "blood-check-61d79.firebasestorage.app",
-        messagingSenderId: "568193011594",
-        appId: "1:568193011594:web:ae458d445021ef2f11c273",
-        measurementId: "G-VZQJ43Y7PQ"
-    };
-
-    // Firebase初期化 (設定が正しく入力されている場合のみ)
-    let db = null;
-    let auth = null;
-    let currentUser = null;
-
-    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        auth = firebase.auth();
-
-        // ログイン状態の監視
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('user-info').style.display = 'block';
-                document.getElementById('login-trigger-btn').style.display = 'none';
-                document.getElementById('user-email').textContent = user.email;
-                console.log("Logged in as:", user.email);
-
-                // クラウドからデータを取得してマージ
-                console.log("Starting initial sync for:", user.email);
-                syncFromCloud().then(() => {
-                    console.log("Initial sync completed.");
-                });
-            } else {
-                currentUser = null;
-                document.getElementById('user-info').style.display = 'none';
-                document.getElementById('login-trigger-btn').style.display = 'block';
-                console.log("Logged out");
-                // ログアウト時はローカルデータに戻る
-                loadFromLocal();
-                renderTable();
-                updateChart();
-            }
-        });
-    }
+    let useLocalStorage = true; // Always use LocalStorage for Standalone operation
 
 
 
@@ -141,14 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rangeFilter) rangeFilter.value = '1';
     initDateTimeInputs();
 
-    // Helper to sync form with existing data
-    const updateFormFromData = () => {
-        const date = dateInput.value;
-        const selectedPeriod = document.querySelector('input[name="period"]:checked');
-        const period = selectedPeriod ? selectedPeriod.value : 'morning';
-        loadFormData(date, period);
-    };
-
     // 1. Initialize charts
     try {
         if (typeof Chart === 'undefined') {
@@ -166,8 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchData().then(() => {
         renderTable();
         updateChart();
-        // Populate form if data for current date/period exists
-        if (typeof updateFormFromData === 'function') updateFormFromData();
     }).catch(err => {
         console.error('Fetch sequence failed', err);
     });
@@ -255,80 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Login Modal Events ---
-    const loginOverlay = document.getElementById('login-overlay');
-    const loginTriggerBtn = document.getElementById('login-trigger-btn');
-    const closeLoginBtn = document.getElementById('close-login-btn');
-    const loginForm = document.getElementById('login-form');
-    const logoutBtn = document.getElementById('logout-btn');
-    const syncBtn = document.getElementById('sync-btn');
-
-    if (syncBtn) {
-        syncBtn.addEventListener('click', async () => {
-            syncBtn.disabled = true;
-            syncBtn.textContent = '同期中...';
-            await syncFromCloud();
-            setTimeout(() => {
-                syncBtn.disabled = false;
-                syncBtn.textContent = '🔄 再同期';
-            }, 500);
-        });
-    }
-
-    if (loginTriggerBtn) {
-        loginTriggerBtn.addEventListener('click', () => {
-            loginOverlay.style.display = 'flex';
-        });
-    }
-
-    if (closeLoginBtn) {
-        closeLoginBtn.addEventListener('click', () => {
-            loginOverlay.style.display = 'none';
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            if (confirm("ログアウトしますか？（端末のデータはそのまま残ります）")) {
-                auth.signOut();
-            }
-        });
-    }
-
-    if (loginForm) {
-        const signupBtn = document.getElementById('signup-btn');
-        const signinBtn = document.getElementById('signin-btn');
-
-        const handleAuthAction = async (action) => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            if (!loginForm.reportValidity()) return;
-
-            try {
-                if (action === 'signup') {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                    alert("新規登録に成功しました！");
-                } else {
-                    await auth.signInWithEmailAndPassword(email, password);
-                }
-                loginOverlay.style.display = 'none';
-            } catch (error) {
-                console.error("Auth error:", error);
-                alert("認証エラー: " + error.message);
-            }
-        };
-
-        if (signupBtn) {
-            signupBtn.addEventListener('click', () => handleAuthAction('signup'));
-        }
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleAuthAction('signin');
-        });
-    }
-
     // Attach listener
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -373,10 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Dynamic data loading when changing date or period
-    dateInput.addEventListener('change', updateFormFromData);
+    // Dynamic data loading when switching periods
     document.querySelectorAll('input[name="period"]').forEach(radio => {
-        radio.addEventListener('change', updateFormFromData);
+        radio.addEventListener('change', (e) => {
+            const date = dateInput.value;
+            const period = e.target.value;
+            // Only load if we have data for this date (editing mode context)
+            if (bpData[date]) {
+                loadFormData(date, period);
+            }
+        });
     });
 
     // Import Listeners
@@ -506,159 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchData() {
         loadFromLocal();
-        console.log(`Loaded ${Object.keys(bpData).length} items from LocalStorage.`);
-
-        if (currentUser) {
-            await syncFromCloud();
-        }
-    }
-
-    async function syncFromCloud() {
-        if (!currentUser || !db) return;
-
-        try {
-            console.log("Fetching latest data from Cloud...");
-            const doc = await db.collection('users').doc(currentUser.uid).get({ source: 'server' });
-            let cloudData = {};
-            if (doc.exists) {
-                cloudData = doc.data().bpData || {};
-            }
-
-            // --- Robust Merge Logic ---
-            let uploadedCount = 0;
-            let addedFromCloud = 0;
-            const mergedData = { ...bpData };
-
-            // 1. Merge Cloud into Local
-            for (const date in cloudData) {
-                const cloudEntry = cloudData[date];
-                const localEntry = mergedData[date];
-
-                if (!localEntry) {
-                    mergedData[date] = cloudEntry;
-                    addedFromCloud++;
-                } else {
-                    let dayModified = false;
-
-                    // Morning merge - prioritize medication:true or real values
-                    if (cloudEntry.morning) {
-                        const cloudStr = JSON.stringify(cloudEntry.morning);
-                        const localStr = localEntry.morning ? JSON.stringify(localEntry.morning) : "";
-                        if (cloudStr !== localStr) {
-                            const cloudHasMed = cloudEntry.morning.medication === true;
-                            const localHasMed = localEntry.morning?.medication === true;
-                            const cloudHasVal = (cloudEntry.morning.sys || 0) > 0;
-                            const localHasVal = (localEntry.morning?.sys || 0) > 0;
-
-                            // Take cloud if it has medication and local doesn't, 
-                            // or if cloud has values and local doesn't,
-                            // or if cloud is simply newer/different and we are syncing.
-                            if ((cloudHasMed && !localHasMed) || (cloudHasVal && !localHasVal) || (cloudStr.length > localStr.length)) {
-                                localEntry.morning = cloudEntry.morning;
-                                dayModified = true;
-                            }
-                        }
-                    }
-
-                    // Evening merge
-                    if (cloudEntry.evening) {
-                        const cloudStr = JSON.stringify(cloudEntry.evening);
-                        const localStr = localEntry.evening ? JSON.stringify(localEntry.evening) : "";
-                        if (cloudStr !== localStr) {
-                            if ((cloudEntry.evening.sys || 0) > 0) {
-                                localEntry.evening = cloudEntry.evening;
-                                dayModified = true;
-                            }
-                        }
-                    }
-
-                    // Memo merge
-                    if (cloudEntry.memo && (!localEntry.memo || localEntry.memo.trim() === "")) {
-                        if (localEntry.memo !== cloudEntry.memo) {
-                            localEntry.memo = cloudEntry.memo;
-                            dayModified = true;
-                        }
-                    }
-
-                    if (dayModified) addedFromCloud++;
-                }
-            }
-
-            // 2. Identify Local-only data to see if we need to Upload
-            let needsUpload = !doc.exists;
-            if (!needsUpload) {
-                for (const date in mergedData) {
-                    if (!cloudData[date]) {
-                        needsUpload = true;
-                        uploadedCount++;
-                    } else {
-                        // Check if local has specific periods cloud is missing
-                        if (mergedData[date].morning && !cloudData[date].morning) { needsUpload = true; uploadedCount++; }
-                        else if (mergedData[date].evening && !cloudData[date].evening) { needsUpload = true; uploadedCount++; }
-                    }
-                    if (needsUpload && uploadedCount > 10) break; // limit counting
-                }
-            }
-
-            // Sync complete - Update State
-            bpData = mergedData;
-            saveToLocal();
-            renderTable();
-            updateChart();
-
-            // NEW: Ensure current open form is also updated with synced data
-            if (typeof updateFormFromData === 'function') {
-                updateFormFromData();
-            }
-
-            // 3. Resolve Sync Direction
-            if (needsUpload) {
-                console.log("Local has unique data. Uploading to Cloud...");
-                await saveToCloud();
-            }
-
-            // Final Feedback
-            let message = "";
-            if (addedFromCloud > 0 && needsUpload) {
-                message = `同期完了：クラウドから ${addedFromCloud}件 読み込み、ローカルから最新データをアップロードしました。`;
-            } else if (addedFromCloud > 0) {
-                message = `同期完了：クラウドから ${addedFromCloud}件 の新しいデータを読み込みました。`;
-            } else if (needsUpload) {
-                message = `同期完了：ローカルの変更をクラウドへ保存しました。`;
-            } else {
-                message = "同期済みです：クラウドとローカルのデータは一致しています。";
-            }
-            alert(message);
-
-            return { added: addedFromCloud, uploaded: uploadedCount };
-        } catch (error) {
-            console.error("Sync error:", error);
-            alert("同期中にエラーが発生しました。インターネット接続やログイン状態を確認してください。");
-        }
-    }
-
-    async function saveToCloud() {
-        if (!currentUser) {
-            console.warn("SaveToCloud: No user logged in. Skipping upload.");
-            return;
-        }
-        if (!db) return;
-
-        try {
-            await db.collection('users').doc(currentUser.uid).set({
-                bpData: bpData,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-            console.log("Saved to cloud successfully.");
-        } catch (error) {
-            console.error("Cloud save error:", error);
-            if (error.code === 'resource-exhausted' || error.message.includes('too large')) {
-                alert("データのサイズが大きすぎるため、クラウドに保存できませんでした。不要なデータを整理してください。");
-            } else {
-                alert("クラウドへの保存中にエラーが発生しました: " + error.message);
-            }
-            throw error;
-        }
+        console.log(`Standalone Mode: Loaded ${Object.keys(bpData).length} items from LocalStorage.`);
     }
 
     function loadFromLocal() {
@@ -694,136 +416,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function saveRecord(date, data) {
         saveToLocal();
-        if (currentUser) {
-            await saveToCloud();
-        }
     }
 
     async function deleteRecord(date) {
         saveToLocal();
-        if (currentUser) {
-            await saveToCloud();
-        }
     }
 
     async function saveBatch(batchData) {
-        console.log('Saving batch');
+        console.log('Saving batch to LocalStorage');
         saveToLocal();
-        if (currentUser) {
-            await saveToCloud();
-        }
     }
 
     // Legacy functions removed: saveData, loadData
-    async function handleFormSubmit(e) {
+    function handleFormSubmit(e) {
         e.preventDefault();
 
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = '保存中...';
+        const date = dateInput.value;
+        const period = document.querySelector('input[name="period"]:checked').value;
 
-        try {
-            const date = dateInput.value;
-            const period = document.querySelector('input[name="period"]:checked').value;
+        // Get values
+        const sys1 = parseInt(document.getElementById('sys1').value) || 0;
+        const dia1 = parseInt(document.getElementById('dia1').value) || 0;
+        const pul1 = parseInt(document.getElementById('pul1').value) || 0;
 
-            // ... (keep previous input reading logic) ...
-            const sys1 = parseInt(document.getElementById('sys1').value) || 0;
-            const dia1 = parseInt(document.getElementById('dia1').value) || 0;
-            const pul1 = parseInt(document.getElementById('pul1').value) || 0;
-            const sys2 = parseInt(document.getElementById('sys2').value) || 0;
-            const dia2 = parseInt(document.getElementById('dia2').value) || 0;
-            const pul2 = parseInt(document.getElementById('pul2').value) || 0;
+        const sys2 = parseInt(document.getElementById('sys2').value) || 0;
+        const dia2 = parseInt(document.getElementById('dia2').value) || 0;
+        const pul2 = parseInt(document.getElementById('pul2').value) || 0;
 
-            const avgSys = Math.round((sys1 + sys2) / 2);
-            const avgDia = Math.round((dia1 + dia2) / 2);
-            const avgPul = Math.round((pul1 + pul2) / 2);
+        // Calculate Averages (Round to nearest integer)
+        const avgSys = Math.round((sys1 + sys2) / 2);
+        const avgDia = Math.round((dia1 + dia2) / 2);
+        const avgPul = Math.round((pul1 + pul2) / 2);
 
-            if (!bpData[date]) bpData[date] = {};
-            const entryData = {
-                sys: avgSys,
-                dia: avgDia,
-                pul: avgPul,
-                raw: {
-                    m1: { sys: sys1, dia: dia1, pul: pul1 },
-                    m2: { sys: sys2, dia: dia2, pul: pul2 }
-                }
-            };
-
-            if (period === 'morning') {
-                entryData.medication = medicationCheck.checked;
-            }
-
-            bpData[date][period] = entryData;
-
-            if (period === 'evening') {
-                if (!bpData[date].morning) {
-                    bpData[date].morning = { sys: 0, dia: 0, pul: 0, medication: medicationCheck.checked };
-                } else {
-                    bpData[date].morning.medication = medicationCheck.checked;
-                }
-            }
-            bpData[date].memo = memoInput.value;
-
-            // Wait for both local and cloud save
-            await saveRecord(date, bpData[date]);
-
-            renderTable();
-            updateChart();
-            console.log(`Saved entry for ${date} (${period})`);
-
-            // Optionally alerts on mobile or focus back
-            if (window.innerWidth <= 600) {
-                alert("保存しました。");
-                window.setActiveTab('chart-view');
-            }
-        } catch (err) {
-            console.error("Submit failure:", err);
-            alert("保存に失敗しました。");
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalBtnText;
+        // Update Data
+        if (!bpData[date]) {
+            bpData[date] = {};
         }
+
+        const entryData = {
+            sys: avgSys,
+            dia: avgDia,
+            pul: avgPul,
+            raw: {
+                m1: { sys: sys1, dia: dia1, pul: pul1 },
+                m2: { sys: sys2, dia: dia2, pul: pul2 }
+            }
+        };
+
+        if (period === 'morning') {
+            entryData.medication = medicationCheck.checked; // Save medication status for morning
+        }
+
+        bpData[date][period] = entryData;
+
+        // Save memo at daily level
+        bpData[date].memo = memoInput.value;
+
+        // Save to Server
+        saveRecord(date, bpData[date]);
+
+        // Update UI
+        renderTable();
+        updateChart();
+        saveToLocal(); // Final save check
+        console.log(`Saved entry for ${date} (${period})`);
     }
 
     function loadFormData(date, period) {
-        // 1. Always reset BP inputs
-        document.getElementById('sys1').value = '';
-        document.getElementById('dia1').value = '';
-        document.getElementById('pul1').value = '';
-        document.getElementById('sys2').value = '';
-        document.getElementById('dia2').value = '';
-        document.getElementById('pul2').value = '';
+        if (!bpData[date] || !bpData[date][period]) return;
 
-        // 2. Daily level data (Memo and Medication)
-        if (bpData[date]) {
-            memoInput.value = bpData[date].memo || '';
-            // Medication is stored in morning entry
-            if (bpData[date].morning && bpData[date].morning.medication !== undefined) {
-                medicationCheck.checked = bpData[date].morning.medication;
-            } else {
-                medicationCheck.checked = false;
-            }
-        } else {
-            memoInput.value = '';
-            medicationCheck.checked = false;
+        const entry = bpData[date][period];
+        const raw = entry.raw || {};
+        const m1 = raw.m1 || {};
+        const m2 = raw.m2 || {};
+
+        document.getElementById('sys1').value = m1.sys || '';
+        document.getElementById('dia1').value = m1.dia || '';
+        document.getElementById('pul1').value = m1.pul || '';
+
+        document.getElementById('sys2').value = m2.sys || '';
+        document.getElementById('dia2').value = m2.dia || '';
+        document.getElementById('pul2').value = m2.pul || '';
+
+        if (period === 'morning' && entry.medication !== undefined) {
+            medicationCheck.checked = entry.medication;
         }
 
-        // 3. Period specific data
-        if (bpData[date] && bpData[date][period]) {
-            const entry = bpData[date][period];
-            const raw = entry.raw || {};
-            const m1 = raw.m1 || {};
-            const m2 = raw.m2 || {};
-
-            document.getElementById('sys1').value = m1.sys || '';
-            document.getElementById('dia1').value = m1.dia || '';
-            document.getElementById('pul1').value = m1.pul || '';
-
-            document.getElementById('sys2').value = m2.sys || '';
-            document.getElementById('dia2').value = m2.dia || '';
-            document.getElementById('pul2').value = m2.pul || '';
-        }
+        // Load memo
+        memoInput.value = bpData[date].memo || '';
     }
 
     function deleteEntry(date) {
@@ -907,17 +587,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-dia" data-label="最低" style="${eDia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eDia}</td>
                 <td class="cell-e-pul" data-label="脈拍">${ePul}</td>
                 
-                <td class="cell-m-stats mobile-only-cell" data-label="朝">
-                    <div style="white-space: nowrap;">
-                        <span style="${mSys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mSys}</span>/<span style="${mDia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${mDia}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${mPul}</div>
+                <td class="cell-m-stats mobile-only-cell" data-label="朝" style="${mSys >= userTargets.sys || mDia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">
+                    ${mSys}/${mDia}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${mPul}</span>
                 </td>
-                <td class="cell-e-stats mobile-only-cell" data-label="晩">
-                    <div style="white-space: nowrap;">
-                        <span style="${eSys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eSys}</span>/<span style="${eDia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${eDia}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${ePul}</div>
+                <td class="cell-e-stats mobile-only-cell" data-label="晩" style="${eSys >= userTargets.sys || eDia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">
+                    ${eSys}/${eDia}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${ePul}</span>
                 </td>
 
                 <td class="cell-med" data-label="服薬">${mMed}</td>
@@ -950,16 +624,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m1.pul)}</td>
                 
                 <td class="cell-m-stats mobile-only-cell" data-label="朝">
-                    <div style="white-space: nowrap;">
-                        <span style="${rawM.m1.sys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawM.m1.sys)}</span>/<span style="${rawM.m1.dia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawM.m1.dia)}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m1.pul)}</div>
+                    ${safeVal(rawM.m1.sys)}/${safeVal(rawM.m1.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m1.pul)}</span>
                 </td>
                 <td class="cell-e-stats mobile-only-cell" data-label="晩">
-                    <div style="white-space: nowrap;">
-                        <span style="${rawE.m1.sys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawE.m1.sys)}</span>/<span style="${rawE.m1.dia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawE.m1.dia)}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m1.pul)}</div>
+                    ${safeVal(rawE.m1.sys)}/${safeVal(rawE.m1.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m1.pul)}</span>
                 </td>
 
                 <td class="cell-med"></td>
@@ -981,16 +649,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="cell-e-pul" data-label="脈拍">${safeVal(rawE.m2.pul)}</td>
 
                 <td class="cell-m-stats mobile-only-cell" data-label="朝">
-                    <div style="white-space: nowrap;">
-                        <span style="${rawM.m2.sys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawM.m2.sys)}</span>/<span style="${rawM.m2.dia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawM.m2.dia)}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m2.pul)}</div>
+                    ${safeVal(rawM.m2.sys)}/${safeVal(rawM.m2.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawM.m2.pul)}</span>
                 </td>
                 <td class="cell-e-stats mobile-only-cell" data-label="晩">
-                    <div style="white-space: nowrap;">
-                        <span style="${rawE.m2.sys >= userTargets.sys ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawE.m2.sys)}</span>/<span style="${rawE.m2.dia >= userTargets.dia ? 'color:var(--accent-red); font-weight:bold;' : ''}">${safeVal(rawE.m2.dia)}</span>
-                    </div>
-                    <div style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m2.pul)}</div>
+                    ${safeVal(rawE.m2.sys)}/${safeVal(rawE.m2.dia)}<br><span style="font-size: 0.8em; font-weight: normal; color: var(--text-secondary);">${safeVal(rawE.m2.pul)}</span>
                 </td>
 
                 <td class="cell-med"></td>
@@ -1834,7 +1496,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                if (m1.sys === 0 && m2.sys === 0 && e1.sys === 0 && e2.sys === 0 && !tookMed) continue;
+                if (m1.sys === 0 && m2.sys === 0 && e1.sys === 0 && e2.sys === 0) continue;
 
                 // Build Morning Entry
                 const mSysAvg = Math.round(((m1.sys || m2.sys) + (m2.sys || m1.sys)) / 2) || (m1.sys || m2.sys);
@@ -1850,11 +1512,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!bpData[dateStr]) bpData[dateStr] = {};
 
                 // Update Morning
-                if (mSysAvg > 0 || tookMed) {
+                if (mSysAvg > 0) {
                     bpData[dateStr].morning = {
-                        sys: mSysAvg || 0,
-                        dia: mDiaAvg || 0,
-                        pul: mPulAvg || 0,
+                        sys: mSysAvg,
+                        dia: mDiaAvg,
+                        pul: mPulAvg,
                         medication: tookMed, // Import medication status
                         raw: { m1, m2 }
                     };
