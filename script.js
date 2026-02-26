@@ -865,19 +865,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getFilteredDates() {
-        const allDates = Object.keys(bpData).sort();
-        if (rangeFilter.value === 'all') return allDates;
+        // 1. Determine the start date based on range filter
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        const months = parseInt(rangeFilter.value);
-        const cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth() - months);
-        // Normalize today to start of day for comparison
-        cutoff.setHours(0, 0, 0, 0);
+        let startDate;
+        if (rangeFilter.value === 'all') {
+            const allKeys = Object.keys(bpData).sort();
+            if (allKeys.length === 0) return [];
+            startDate = new Date(allKeys[0]);
+        } else {
+            const months = parseInt(rangeFilter.value);
+            startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - months);
+            startDate.setHours(0, 0, 0, 0);
 
-        return allDates.filter(dateStr => {
-            const d = new Date(dateStr);
-            return d >= cutoff;
-        });
+            // Also don't go before the first record ever if "all" wasn't selected? 
+            // Actually, keep it simple: from [today - X months] to [today]
+        }
+
+        // 2. Generate continuous list
+        const dates = [];
+        let cur = new Date(startDate);
+        while (cur <= today) {
+            dates.push(cur.toISOString().split('T')[0]);
+            cur.setDate(cur.getDate() + 1);
+        }
+        return dates;
     }
 
     function renderTable() {
@@ -1347,17 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const diaPointColors = [];
             const pulPointColors = [];
 
-            // Generate continuous list of dates between the first and last dates in filtered result
-            const firstDate = new Date(displayDates[0]);
-            const lastDate = new Date(displayDates[displayDates.length - 1]);
-            const allDatesInRange = [];
-            let cur = new Date(firstDate);
-            while (cur <= lastDate) {
-                allDatesInRange.push(cur.toISOString().split('T')[0]);
-                cur.setDate(cur.getDate() + 1);
-            }
-
-            allDatesInRange.forEach(date => {
+            displayDates.forEach(date => {
                 const day = bpData[date] || {};
                 const parts = String(date).trim().split('-');
                 const shortDate = (parts.length >= 3) ? `${parts[1]}/${parts[2]}` : date;
@@ -1452,17 +1456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const medData = [];
             const tSys = [], tDia = [];
 
-            // Generate continuous list of dates
-            const firstDate = new Date(displayDates[0]);
-            const lastDate = new Date(displayDates[displayDates.length - 1]);
-            const allDatesInRange = [];
-            let cur = new Date(firstDate);
-            while (cur <= lastDate) {
-                allDatesInRange.push(cur.toISOString().split('T')[0]);
-                cur.setDate(cur.getDate() + 1);
-            }
-
-            allDatesInRange.forEach(date => {
+            displayDates.forEach(date => {
                 const day = bpData[date] || {};
                 const m = day.morning || {};
                 const e = day.evening || {};
