@@ -897,14 +897,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const m = entry.morning || {};
             const e = entry.evening || {};
 
-            const mSys = m.sys || '-';
-            const mDia = m.dia || '-';
-            const mPul = m.pul || '-';
+            const mSys = (m.sys && m.sys > 0) ? m.sys : '';
+            const mDia = (m.dia && m.dia > 0) ? m.dia : '';
+            const mPul = (m.pul && m.pul > 0) ? m.pul : '';
             const mMed = m.medication ? '<span class="med-icon" title="服薬あり">💊</span>' : '';
 
-            const eSys = e.sys || '-';
-            const eDia = e.dia || '-';
-            const ePul = e.pul || '-';
+            const eSys = (e.sys && e.sys > 0) ? e.sys : '';
+            const eDia = (e.dia && e.dia > 0) ? e.dia : '';
+            const ePul = (e.pul && e.pul > 0) ? e.pul : '';
 
             const detailClass = `detail-group-${i}`;
 
@@ -962,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Raw Data Helpers
             const rawM = (m.raw) ? m.raw : { m1: {}, m2: {} };
             const rawE = (e.raw) ? e.raw : { m1: {}, m2: {} };
-            const safeVal = (val) => val || '-';
+            const safeVal = (val) => (val && val > 0) ? val : '';
 
             // Detail Row 1 (1st Measurement)
             const detailRow1 = document.createElement('tr');
@@ -1347,47 +1347,45 @@ document.addEventListener('DOMContentLoaded', () => {
             const diaPointColors = [];
             const pulPointColors = [];
 
-            displayDates.forEach(date => {
-                const day = bpData[date];
-                if (!day || typeof day !== 'object') return;
+            // Generate continuous list of dates between the first and last dates in filtered result
+            const firstDate = new Date(displayDates[0]);
+            const lastDate = new Date(displayDates[displayDates.length - 1]);
+            const allDatesInRange = [];
+            let cur = new Date(firstDate);
+            while (cur <= lastDate) {
+                allDatesInRange.push(cur.toISOString().split('T')[0]);
+                cur.setDate(cur.getDate() + 1);
+            }
 
+            allDatesInRange.forEach(date => {
+                const day = bpData[date] || {};
                 const parts = String(date).trim().split('-');
                 const shortDate = (parts.length >= 3) ? `${parts[1]}/${parts[2]}` : date;
 
                 // --- Morning ---
                 const m = day.morning || {};
                 labels.push(`${shortDate} 朝`);
-
-                sysData.push(m.sys ? parseInt(m.sys) : null);
-                diaData.push(m.dia ? parseInt(m.dia) : null);
-                pulData.push(m.pul ? parseInt(m.pul) : null);
+                sysData.push((m.sys && m.sys > 0) ? parseInt(m.sys) : null);
+                diaData.push((m.dia && m.dia > 0) ? parseInt(m.dia) : null);
+                pulData.push((m.pul && m.pul > 0) ? parseInt(m.pul) : null);
                 pointStyles.push('circle');
-
                 sysPointColors.push(colSysM);
                 diaPointColors.push(colDiaM);
                 pulPointColors.push(colPulM);
-
-                if (m.medication) {
-                    medData.push(maxBP - 8);
-                } else {
-                    medData.push(null);
-                }
+                medData.push(m.medication ? maxBP - 8 : null);
                 tSys.push(userTargets.sys);
                 tDia.push(userTargets.dia);
 
                 // --- Evening ---
                 const e = day.evening || {};
                 labels.push(`${shortDate} 晩`);
-
-                sysData.push(e.sys ? parseInt(e.sys) : null);
-                diaData.push(e.dia ? parseInt(e.dia) : null);
-                pulData.push(e.pul ? parseInt(e.pul) : null);
+                sysData.push((e.sys && e.sys > 0) ? parseInt(e.sys) : null);
+                diaData.push((e.dia && e.dia > 0) ? parseInt(e.dia) : null);
+                pulData.push((e.pul && e.pul > 0) ? parseInt(e.pul) : null);
                 pointStyles.push('rectRot');
-
                 sysPointColors.push(colSysE);
                 diaPointColors.push(colDiaE);
                 pulPointColors.push(colPulE);
-
                 medData.push(null);
                 tSys.push(userTargets.sys);
                 tDia.push(userTargets.dia);
@@ -1454,24 +1452,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const medData = [];
             const tSys = [], tDia = [];
 
-            displayDates.forEach(date => {
-                const day = bpData[date];
-                if (!day || typeof day !== 'object') return;
+            // Generate continuous list of dates
+            const firstDate = new Date(displayDates[0]);
+            const lastDate = new Date(displayDates[displayDates.length - 1]);
+            const allDatesInRange = [];
+            let cur = new Date(firstDate);
+            while (cur <= lastDate) {
+                allDatesInRange.push(cur.toISOString().split('T')[0]);
+                cur.setDate(cur.getDate() + 1);
+            }
+
+            allDatesInRange.forEach(date => {
+                const day = bpData[date] || {};
+                const m = day.morning || {};
+                const e = day.evening || {};
 
                 const parts = String(date).trim().split('-');
                 const shortDate = (parts.length >= 3) ? `${parts[1]}/${parts[2]}` : date;
                 labels.push(shortDate);
 
-                const m = day.morning || {};
-                const e = day.evening || {};
+                mSys.push(m.sys && m.sys > 0 ? m.sys : null);
+                mDia.push(m.dia && m.dia > 0 ? m.dia : null);
+                mPul.push(m.pul && m.pul > 0 ? m.pul : null);
 
-                mSys.push(m.sys || null);
-                mDia.push(m.dia || null);
-                mPul.push(m.pul || null);
-
-                eSys.push(e.sys || null);
-                eDia.push(e.dia || null);
-                ePul.push(e.pul || null);
+                eSys.push(e.sys && e.sys > 0 ? e.sys : null);
+                eDia.push(e.dia && e.dia > 0 ? e.dia : null);
+                ePul.push(e.pul && e.pul > 0 ? e.pul : null);
 
                 medData.push(m.medication ? maxBP - 8 : null);
 
