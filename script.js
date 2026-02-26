@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Main Row
             const row = document.createElement('tr');
             row.className = 'main-row';
-            const hasMemo = bpData[date].memo && bpData[date].memo.trim() !== '';
+            const hasMemo = entry.memo && entry.memo.trim() !== '';
             row.innerHTML = `
                 <td class="date-toggle cell-date" data-target="${detailClass}" data-label="日付" style="cursor: pointer; user-select: none; color: var(--primary-color); font-weight: 500;">
                     ${date.substring(5)} <span class="${isSunday ? 'sunday-text' : ''}" style="color: ${isSunday ? '#ef4444' : 'var(--text-secondary)'}; font-size: 0.8em;">(${dayOfWeek})</span>
@@ -963,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
 
                 <td class="cell-med" data-label="服薬">${mMed}</td>
-                <td class="cell-memo ${!bpData[date].memo ? 'empty-memo' : ''}" data-label="メモ">${bpData[date].memo || ''}</td>
+                <td class="cell-memo ${!entry.memo ? 'empty-memo' : ''}" data-label="メモ">${entry.memo || ''}</td>
                 <td class="col-actions cell-edit" data-label="編集">
                     <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
                         <button class="btn-icon-edit" data-date="${date}" title="データを編集">✏️</button>
@@ -1071,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 memoRow.style.backgroundColor = '#fffbeb';
                 memoRow.innerHTML = `
                     <td colspan="10" style="padding: 10px 16px; font-size: 0.85rem; color: #92400e; border: 1px solid #fde68a; border-radius: 8px;">
-                        <strong>メモ:</strong> ${bpData[date].memo}
+                        <strong>メモ:</strong> ${entry.memo}
                     </td>
                 `;
                 tableBody.appendChild(memoRow);
