@@ -864,6 +864,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const toYMD = (d) => {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
     function getFilteredDates() {
         // 1. Determine the start date based on range filter
         const today = new Date();
@@ -872,23 +876,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let startDate;
         if (rangeFilter.value === 'all') {
             const allKeys = Object.keys(bpData).sort();
-            if (allKeys.length === 0) return [];
+            if (allKeys.length === 0) return [toYMD(today)];
             startDate = new Date(allKeys[0]);
+            startDate.setHours(0, 0, 0, 0);
         } else {
             const months = parseInt(rangeFilter.value);
             startDate = new Date();
             startDate.setMonth(startDate.getMonth() - months);
             startDate.setHours(0, 0, 0, 0);
-
-            // Also don't go before the first record ever if "all" wasn't selected? 
-            // Actually, keep it simple: from [today - X months] to [today]
         }
 
         // 2. Generate continuous list
         const dates = [];
         let cur = new Date(startDate);
         while (cur <= today) {
-            dates.push(cur.toISOString().split('T')[0]);
+            dates.push(toYMD(cur));
             cur.setDate(cur.getDate() + 1);
         }
         return dates;
