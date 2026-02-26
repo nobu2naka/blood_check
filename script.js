@@ -727,17 +727,45 @@ document.addEventListener('DOMContentLoaded', () => {
             const date = dateInput.value;
             const period = document.querySelector('input[name="period"]:checked').value;
 
-            // ... (keep previous input reading logic) ...
+            // Read values
             const sys1 = parseInt(document.getElementById('sys1').value) || 0;
             const dia1 = parseInt(document.getElementById('dia1').value) || 0;
             const pul1 = parseInt(document.getElementById('pul1').value) || 0;
             const sys2 = parseInt(document.getElementById('sys2').value) || 0;
             const dia2 = parseInt(document.getElementById('dia2').value) || 0;
             const pul2 = parseInt(document.getElementById('pul2').value) || 0;
+            const isMedication = medicationCheck.checked;
+            const memoValue = memoInput.value;
 
-            const avgSys = Math.round((sys1 + sys2) / 2);
-            const avgDia = Math.round((dia1 + dia2) / 2);
-            const avgPul = Math.round((pul1 + pul2) / 2);
+            // Validation: If no BP data and no medication and no memo, abort
+            const hasSys = (sys1 > 0 || sys2 > 0);
+            const hasDia = (dia1 > 0 || dia2 > 0);
+            const hasPul = (pul1 > 0 || pul2 > 0);
+
+            if (!hasSys && !hasDia && !hasPul && !isMedication && !memoValue.trim()) {
+                alert("血圧、脈拍、服薬チェック、またはメモのいずれかを入力してください。");
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+                return;
+            }
+
+            // Calculate Averages correctly (only count non-zero measurements)
+            const m1_valid = sys1 > 0 || dia1 > 0 || pul1 > 0;
+            const m2_valid = sys2 > 0 || dia2 > 0 || pul2 > 0;
+
+            let avgSys = 0;
+            let avgDia = 0;
+            let avgPul = 0;
+
+            if (m1_valid && m2_valid) {
+                avgSys = Math.round((sys1 + sys2) / 2);
+                avgDia = Math.round((dia1 + dia2) / 2);
+                avgPul = Math.round((pul1 + pul2) / 2);
+            } else if (m1_valid) {
+                avgSys = sys1; avgDia = dia1; avgPul = pul1;
+            } else if (m2_valid) {
+                avgSys = sys2; avgDia = dia2; avgPul = pul2;
+            }
 
             if (!bpData[date]) bpData[date] = {};
             const entryData = {
@@ -751,19 +779,19 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             if (period === 'morning') {
-                entryData.medication = medicationCheck.checked;
+                entryData.medication = isMedication;
             }
 
             bpData[date][period] = entryData;
 
             if (period === 'evening') {
                 if (!bpData[date].morning) {
-                    bpData[date].morning = { sys: 0, dia: 0, pul: 0, medication: medicationCheck.checked };
+                    bpData[date].morning = { sys: 0, dia: 0, pul: 0, medication: isMedication };
                 } else {
-                    bpData[date].morning.medication = medicationCheck.checked;
+                    bpData[date].morning.medication = isMedication;
                 }
             }
-            bpData[date].memo = memoInput.value;
+            bpData[date].memo = memoValue;
 
             // Wait for both local and cloud save
             await saveRecord(date, bpData[date]);
